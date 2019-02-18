@@ -1,43 +1,43 @@
 // Specify enclosure dimensions
-enclosureHeight=475.0;
-enclosureWidth=535.0; // depth is same as width
+enclosure_height=475.0;
+enclosure_width=535.0; // depth is same as width
 
 // Panel
-panelThickness=6.0;
-panelHeight=450.0;
-panelWidth=535.0;
+panel_thickness=6.0;
+panel_height=450.0;
+panel_width=535.0;
 
 // Frame
-plasticThickness=2.0;
-cornerThickness=30.0;
-cornerHeight=68.0;
-frameOffsetV = enclosureHeight - panelHeight;
-frameThickness = plasticThickness*2 + panelThickness;
+plastic_thickness=2.0;
+corner_thickness=30.0;
+corner_height=68.0;
+fram_offset_v = enclosure_height - panel_height;
+frame_thickness = plastic_thickness*2 + panel_thickness;
 
 // Interlock
-knobDiameter=9.8;
-lugDiameter=6.0;
-lugGap=1.5;
-lugHeight = lugGap+2.15;
-interlockOffsetX=15.0;
-interlockOffsetZ=27.0;
-interlockGap=32;
+knob_diameter=9.8;
+lug_diameter=6.0;
+lug_gap=1.5;
+lug_height = lug_gap+2.15;
+interlock_offset_x=15.0;
+interlock_offset_z=27.0;
+interlock_gap=32;
 
 // Door hinge
-hingeInnerDiameter=10;
-hingeHeight=25;
-hingeLength=53;
+hinge_inner_diameter=10;
+hinge_height=25;
+hinge_length=53;
 
 tolerance=0.4;
-hingeRingThickness=3.0;
-seeThroughPanelThickness=3.0;
-hingeThickness=plasticThickness*2 + seeThroughPanelThickness;
+hinge_ring_thickness=3.0;
+see_through_panel_thickness=3.0;
+hinge_thickness=plastic_thickness*2 + see_through_panel_thickness;
 
 
 
 
 // applies roundness without altering dimensions of object
-module applyRoundness(r)
+module apply_roundness(r)
     offset(r) offset(delta=-r) children(0);
 
 // makes a corner piece by mirroring and rotating one side
@@ -51,15 +51,15 @@ module cornerize() {
 } 
 
 module interlock() {
-    ra = knobDiameter/2;
-    rb = ra - lugDiameter/2;
+    ra = knob_diameter/2;
+    rb = ra - lug_diameter/2;
     
     rotate([0,90,180]) 
         rotate_extrude()
-            polygon([[0,0],[0,lugHeight],[rb,lugHeight],[rb,2.5],[ra,1],[ra,0]]);
+            polygon([[0,0],[0,lug_height],[rb,lug_height],[rb,2.5],[ra,1],[ra,0]]);
 }
 
-module frameCorner(
+module frame_corner(
     width, height, thickness, // outer dimensions
     roundCorners              // radius to round corners by
 ) { 
@@ -68,37 +68,38 @@ module frameCorner(
             rotate([0,0,90]) 
                 cornerize()
                     linear_extrude(height=height)
-                      applyRoundness(roundCorners, $fs =0.01) 
+                      apply_roundness(roundCorners, $fs =0.01) 
                         square( [thickness, width] );
 
-        translate([thickness+lugHeight,interlockOffsetX,interlockOffsetZ]) 
+        translate([thickness+lug_height,interlock_offset_x,interlock_offset_z]) 
                 interlock($fn=50);
-        translate([thickness+lugHeight,interlockOffsetX,interlockOffsetZ+interlockGap])
+        translate([thickness+lug_height,interlock_offset_x,interlock_offset_z+interlock_gap])
                 interlock($fn=50);
      }
 }
 
-module backLeftBottomCorner() {
+module back_left_bottom_corner() {
     mirror([1,0,0])
+        render()
         difference() {
-            frameCorner( cornerThickness, cornerHeight,frameThickness, 0.9);
+            frame_corner( corner_thickness, corner_height,frame_thickness, 0.9);
             
             // remove a gap to allow the left hand panel to fit
-            translate([-cornerThickness+frameThickness,0,frameOffsetV]) 
-                cube([cornerThickness,panelThickness,cornerThickness*2]);
+            translate([-corner_thickness+frame_thickness,0,fram_offset_v]) 
+                cube([corner_thickness,panel_thickness,corner_thickness*2]);
             
             // remove a gap for the back panel to be held in place
-            translate( [frameThickness/2 - panelThickness/2, frameThickness, frameOffsetV] ) 
-                cube([panelThickness,cornerThickness,cornerHeight],false);
+            translate( [frame_thickness/2 - panel_thickness/2, frame_thickness, fram_offset_v] ) 
+                cube([panel_thickness,corner_thickness,corner_height],false);
         }
 }
 
-module hingePost() {
+module hinge_post() {
     difference() {
         union() {
-            translate([-hingeInnerDiameter,0,hingeHeight-hingeInnerDiameter/2+tolerance]) 
-                cube([hingeInnerDiameter*2,hingeInnerDiameter,hingeInnerDiameter],true);
-            cylinder(d=hingeInnerDiameter, hingeHeight+tolerance, $fn=60);
+            translate([-hinge_inner_diameter,0,hinge_height-hinge_inner_diameter/2+tolerance]) 
+                cube([hinge_inner_diameter*2,hinge_inner_diameter,hinge_inner_diameter],true);
+            cylinder(d=hinge_inner_diameter, hinge_height+tolerance, $fn=60);
         }
         
         // add a chamfer
@@ -107,52 +108,53 @@ module hingePost() {
 }
 
 module hinge() {
-    height = hingeHeight-hingeInnerDiameter;
-    width = hingeInnerDiameter+tolerance+hingeRingThickness;
+    height = hinge_height-hinge_inner_diameter;
+    width = hinge_inner_diameter+tolerance+hinge_ring_thickness;
     
     difference() {
         
         // create the base shape for the hinge
         union() {
             cylinder(d=width, height, $fn=60);
-                translate([hingeInnerDiameter*3,0,height/2]) 
-                    cube([hingeLength,hingeThickness,height],true);
+                translate([hinge_inner_diameter*3,0,height/2]) 
+                    cube([hinge_length,hinge_thickness,height],true);
         }
         
         // remove a hole for the hinge post to slide into
-        cylinder(d=hingeInnerDiameter+tolerance, height, $fn=60);
+        cylinder(d=hinge_inner_diameter+tolerance, height, $fn=60);
         
         // remove the groove for the perspex panel
-        translate([hingeInnerDiameter*3+hingeRingThickness,0,height/2+plasticThickness]) 
-            cube([hingeLength,seeThroughPanelThickness,height],true);
+        translate([hinge_inner_diameter*3+hinge_ring_thickness,0,height/2+plastic_thickness]) 
+            cube([hinge_length,see_through_panel_thickness,height],true);
         
         // add a chamfer
-        translate([hingeLength+8,0,height+25]) rotate([0,45,0]) cube(50,true);
+        translate([hinge_length+8,0,height+25]) rotate([0,45,0]) cube(50,true);
     }
         
 }
 
-module frontLeftBottomCorner() {
-    hingePosition=[hingeInnerDiameter/2,cornerThickness+hingeInnerDiameter/2-hingeInnerDiameter/2+plasticThickness+tolerance,0];
+module front_left_bottom_corner() {
+    hinge_position=[hinge_inner_diameter/2,corner_thickness+hinge_inner_diameter/2-hinge_inner_diameter/2+plastic_thickness+tolerance,0];
     union() {
+        render()
         difference() {
             // base model
-            frameCorner( cornerThickness, cornerHeight,frameThickness, 0.9);
+            frame_corner( corner_thickness, corner_height,frame_thickness, 0.9);
             
             // subtract gap for left wall
-            translate([-cornerThickness+frameThickness,0,frameOffsetV]) 
-                cube([cornerThickness,panelThickness,cornerThickness*2]);
+            translate([-corner_thickness+frame_thickness,0,fram_offset_v]) 
+                cube([corner_thickness,panel_thickness,corner_thickness*2]);
             
             // subtract a space for the hinge post
-            translate([-frameThickness/2,-(hingeInnerDiameter/2+plasticThickness+tolerance),0])
-            translate(hingePosition) 
-                cube([frameThickness,hingeInnerDiameter*2,hingeHeight]);
+            translate([-frame_thickness/2,-(hinge_inner_diameter/2+plastic_thickness+tolerance),0])
+            translate(hinge_position) 
+                cube([frame_thickness,hinge_inner_diameter*2,hinge_height]);
         }
-        translate(hingePosition) 
-            rotate([0,0,90]) hingePost();
+        translate(hinge_position) 
+            rotate([0,0,90]) hinge_post();
     }
 }
 
-translate([-enclosureWidth,0,0]) backLeftBottomCorner();
-frontLeftBottomCorner();
-translate([(hingeInnerDiameter)/2,cornerThickness+plasticThickness+tolerance,0]) hinge();
+translate([-enclosure_width,0,0]) back_left_bottom_corner();
+front_left_bottom_corner();
+color([1,0,0]) translate([(hinge_inner_diameter)/2,corner_thickness+plastic_thickness+tolerance,0]) hinge();
