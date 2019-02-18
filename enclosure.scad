@@ -9,14 +9,15 @@ panel_width=535.0;
 
 // Frame
 plastic_thickness=2.0;
-corner_thickness=30.0;
-corner_height=79.0;
-fram_offset_v = enclosure_height - panel_height;
+frame_corner_thickness=30.0;
+frame_corner_height=79.0;
+frame_offset_v = enclosure_height - panel_height;
 frame_thickness = plastic_thickness*2 + panel_thickness;
+frame_side = (enclosure_height - frame_corner_height*2)/2;
 
 // Interlock
 knob_diameter=9.8;
-lug_diameter=7.0;
+lug_diameter=6.2;
 lug_gap=1.4;
 lug_height = lug_gap+2.15;
 interlock_offset_x=15.0;
@@ -29,7 +30,7 @@ hinge_height=25;
 hinge_length=53;
 hinge_gap = 2.0;
 
-tolerance=0.4;
+tolerance=0.22;
 hinge_ring_thickness=3.0;
 see_through_panel_thickness=3.0;
 hinge_thickness=plastic_thickness*2 + see_through_panel_thickness;
@@ -50,45 +51,61 @@ module cornerize() {
 
 module interlock() {
     ra = knob_diameter/2;
-    rb = ra - lug_diameter/2;
+    rb = lug_diameter/2;
     
     rotate([0,90,180]) 
         rotate_extrude()
             polygon([[0,0],[0,lug_height],[rb,lug_height],[rb,2.5],[ra,1],[ra,0]]);
 }
 
-module frame_corner(
-    width, height, thickness, // outer dimensions
-    roundCorners              // radius to round corners by
-) { 
+module frame_corner( width, height, thickness, roundCorners ) {         
+    cornerize()
+        linear_extrude(height=height)
+            apply_roundness(roundCorners, $fs =0.01) 
+            square( [thickness, width] );
+}
+
+module frame_corner_with_lugs( width, height, thickness, roundCorners ) { 
     union() {
         translate([thickness,0,0]) 
-            rotate([0,0,90]) 
-                cornerize()
-                    linear_extrude(height=height)
-                      apply_roundness(roundCorners, $fs =0.01) 
-                        square( [thickness, width] );
-
+            rotate([0,0,90])
+                frame_corner( width, height, thickness, roundCorners );
         translate([thickness+lug_height,interlock_offset_x,interlock_offset_z]) 
                 interlock($fn=50);
         translate([thickness+lug_height,interlock_offset_x,interlock_offset_z+interlock_gap])
                 interlock($fn=50);
-     }
+    }
 }
 
 module back_left_bottom_corner() {
     mirror([1,0,0])
         render()
         difference() {
-            frame_corner( corner_thickness, corner_height,frame_thickness, 0.9);
+            frame_corner_with_lugs( frame_corner_thickness, frame_corner_height,frame_thickness, 0.9);
             
             // remove a gap to allow the left hand panel to fit
-            translate([-corner_thickness+frame_thickness,0,fram_offset_v]) 
-                cube([corner_thickness,panel_thickness,corner_thickness*2]);
+            translate([-frame_corner_thickness+frame_thickness,0,frame_offset_v]) 
+                cube([frame_corner_thickness,panel_thickness,frame_corner_thickness*2]);
             
             // remove a gap for the back panel to be held in place
-            translate( [frame_thickness/2 - panel_thickness/2, frame_thickness, fram_offset_v] ) 
-                cube([panel_thickness,corner_thickness,corner_height],false);
+            translate( [frame_thickness/2 - panel_thickness/2, frame_thickness, frame_offset_v] ) 
+                cube([panel_thickness,frame_corner_thickness,frame_corner_height],false);
+        }
+}
+
+module back_left_top_corner() {
+    mirror([1,0,0])
+        render()
+        difference() {
+            frame_corner_with_lugs( frame_corner_thickness, frame_corner_height,frame_thickness, 0.9);
+            
+            // remove a gap to allow the left hand panel to fit
+            translate([-frame_corner_thickness+frame_thickness,0,0]) 
+                cube([frame_corner_thickness,panel_thickness,frame_corner_height]);
+            
+            // remove a gap for the back panel to be held in place
+            translate( [frame_thickness/2 - panel_thickness/2, frame_thickness, 0] ) 
+                cube([panel_thickness,frame_corner_thickness,frame_corner_height],false);
         }
 }
 
@@ -131,28 +148,61 @@ module hinge() {
         
 }
 
-module front_left_bottom_corner() {
-    hinge_position=[hinge_inner_diameter/2,corner_thickness+hinge_inner_diameter/2-hinge_inner_diameter/2+plastic_thickness+hinge_gap,0];
+module add_hinge_post( top=false ) {
+    hinge_position=[hinge_inner_diameter/2,frame_corner_thickness+plastic_thickness+hinge_gap, (top?frame_corner_height:0)];
+    cutout_height=hinge_height - hinge_inner_diameter + tolerance;
     union() {
-        render()
         difference() {
             // base model
-            frame_corner( corner_thickness, corner_height,frame_thickness, 0.9);
-            
-            // subtract gap for left wall
-            translate([-corner_thickness+frame_thickness,0,fram_offset_v]) 
-                cube([corner_thickness,panel_thickness,corner_thickness*2]);
-            
+            children(0);
+
             // subtract a space for the hinge post
-            translate([-frame_thickness/2,-(hinge_inner_diameter/2+plastic_thickness+tolerance),0])
+            translate([-frame_thickness/2,-hinge_inner_diameter/2+hinge_gap-hinge_ring_thickness-tolerance*3,(top?-cutout_height:0)])
             translate(hinge_position) 
-                cube([frame_thickness,hinge_inner_diameter*2,hinge_height]);
+                cube([frame_thickness,hinge_inner_diameter*2,cutout_height]);
         }
-        translate(hinge_position) 
+        translate(hinge_position) mirror((top?[0,0,1]:[0,0,0]))
             rotate([0,0,90]) hinge_post();
     }
 }
 
-//translate([-enclosure_width,0,0]) back_left_bottom_corner();
-color("SteelBlue") front_left_bottom_corner();
-color("DarkOrchid") translate([(hinge_inner_diameter)/2,corner_thickness+plastic_thickness+hinge_gap,0]) hinge();
+
+module front_left_top_corner() {
+    render()
+    difference() {
+        add_hinge_post(top=true)
+            frame_corner_with_lugs( frame_corner_thickness, frame_corner_height,frame_thickness, 0.9);
+        
+        // subtract gap for left wall
+        translate([-frame_corner_thickness+frame_thickness,0,0]) 
+            cube([frame_corner_thickness,panel_thickness,frame_corner_height*2]);
+    }
+}
+
+module front_left_bottom_corner() {
+    render()
+    difference() {
+        add_hinge_post(top=false)
+            frame_corner_with_lugs( frame_corner_thickness, frame_corner_height,frame_thickness, 0.9);
+        
+        // subtract gap for left wall
+        translate([-frame_corner_thickness+frame_thickness,0,frame_offset_v]) 
+            cube([frame_corner_thickness,panel_thickness,frame_corner_height]);
+    }
+
+}
+
+translate([-enclosure_width,0,0]) back_left_bottom_corner();
+
+translate([-enclosure_width,0,enclosure_height-frame_corner_height]) back_left_top_corner();
+
+translate([0,0,enclosure_height-frame_corner_height]) 
+    front_left_top_corner();
+translate([(hinge_inner_diameter)/2,
+    frame_corner_thickness+plastic_thickness+hinge_gap,
+    enclosure_height]) 
+        rotate([180,0,90]) 
+            hinge();
+
+front_left_bottom_corner();
+translate([(hinge_inner_diameter)/2,frame_corner_thickness+plastic_thickness+hinge_gap,0]) rotate([0,0,90]) hinge();
