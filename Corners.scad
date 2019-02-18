@@ -80,6 +80,7 @@ module frame_corner(
 
 module back_left_bottom_corner() {
     mirror([1,0,0])
+        render()
         difference() {
             frame_corner( corner_thickness, corner_height,frame_thickness, 0.9);
             
@@ -135,6 +136,7 @@ module hinge() {
 module front_left_bottom_corner() {
     hinge_position=[hinge_inner_diameter/2,corner_thickness+hinge_inner_diameter/2-hinge_inner_diameter/2+plastic_thickness+tolerance,0];
     union() {
+        render()
         difference() {
             // base model
             frame_corner( corner_thickness, corner_height,frame_thickness, 0.9);
@@ -155,4 +157,4 @@ module front_left_bottom_corner() {
 
 translate([-enclosure_width,0,0]) back_left_bottom_corner();
 front_left_bottom_corner();
-translate([(hinge_inner_diameter)/2,corner_thickness+plastic_thickness+tolerance,0]) hinge();
+color([1,0,0]) translate([(hinge_inner_diameter)/2,corner_thickness+plastic_thickness+tolerance,0]) hinge();
