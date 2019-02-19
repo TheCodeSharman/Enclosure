@@ -1,19 +1,28 @@
+plastic_thickness=2.0;
+tolerance=0.22;
+
 // Specify enclosure dimensions
 enclosure_height=475.0;
-enclosure_width=535.0; // depth is same as width
+enclosure_width=535.0;
+enclosure_depth=535.0;
 
-// Panel
+// Wall panel dimensions
 panel_thickness=6.0;
 panel_height=450.0;
 panel_width=535.0;
 
+// Door panel dimensions
+door_panel_thickness=3.0;
+door_panel_width=250.0;
+door_panel_height=475.0;
+
 // Frame
-plastic_thickness=2.0;
-frame_corner_thickness=30.0;
+frame_corner_width=30.0;
 frame_corner_height=79.0;
 frame_offset_v = enclosure_height - panel_height;
 frame_thickness = plastic_thickness*2 + panel_thickness;
 frame_side = (enclosure_height - frame_corner_height*2)/2;
+frame_clip_height=50.5;
 
 // Interlock
 knob_diameter=9.8;
@@ -29,11 +38,8 @@ hinge_inner_diameter=10;
 hinge_height=25;
 hinge_length=53;
 hinge_gap = 2.0;
-
-tolerance=0.22;
 hinge_ring_thickness=3.0;
-see_through_panel_thickness=3.0;
-hinge_thickness=plastic_thickness*2 + see_through_panel_thickness;
+hinge_thickness=plastic_thickness*2 + door_panel_thickness;
 
 // applies roundness without altering dimensions of object
 module apply_roundness(r)
@@ -81,15 +87,15 @@ module back_left_bottom_corner() {
     mirror([1,0,0])
         render()
         difference() {
-            frame_corner_with_lugs( frame_corner_thickness, frame_corner_height,frame_thickness, 0.9);
+            frame_corner_with_lugs( frame_corner_width, frame_corner_height,frame_thickness, 0.9);
             
             // remove a gap to allow the left hand panel to fit
-            translate([-frame_corner_thickness+frame_thickness,0,frame_offset_v]) 
-                cube([frame_corner_thickness,panel_thickness,frame_corner_thickness*2]);
+            translate([-frame_corner_width+frame_thickness,0,frame_offset_v]) 
+                cube([frame_corner_width,panel_thickness,frame_corner_width*2]);
             
             // remove a gap for the back panel to be held in place
             translate( [frame_thickness/2 - panel_thickness/2, frame_thickness, frame_offset_v] ) 
-                cube([panel_thickness,frame_corner_thickness,frame_corner_height],false);
+                cube([panel_thickness,frame_corner_width,frame_corner_height],false);
         }
 }
 
@@ -97,15 +103,15 @@ module back_left_top_corner() {
     mirror([1,0,0])
         render()
         difference() {
-            frame_corner_with_lugs( frame_corner_thickness, frame_corner_height,frame_thickness, 0.9);
+            frame_corner_with_lugs( frame_corner_width, frame_corner_height,frame_thickness, 0.9);
             
             // remove a gap to allow the left hand panel to fit
-            translate([-frame_corner_thickness+frame_thickness,0,0]) 
-                cube([frame_corner_thickness,panel_thickness,frame_corner_height]);
+            translate([-frame_corner_width+frame_thickness,0,0]) 
+                cube([frame_corner_width,panel_thickness,frame_corner_height]);
             
             // remove a gap for the back panel to be held in place
             translate( [frame_thickness/2 - panel_thickness/2, frame_thickness, 0] ) 
-                cube([panel_thickness,frame_corner_thickness,frame_corner_height],false);
+                cube([panel_thickness,frame_corner_width,frame_corner_height],false);
         }
 }
 
@@ -140,7 +146,7 @@ module hinge() {
         
         // remove the groove for the perspex panel
         translate([hinge_inner_diameter*3+hinge_ring_thickness,0,height/2+plastic_thickness]) 
-            cube([hinge_length,see_through_panel_thickness,height],true);
+            cube([hinge_length,door_panel_thickness,height],true);
         
         // add a chamfer
         translate([hinge_length+8,0,height+25]) rotate([0,45,0]) cube(50,true);
@@ -149,7 +155,7 @@ module hinge() {
 }
 
 module add_hinge_post( top=false ) {
-    hinge_position=[hinge_inner_diameter/2,frame_corner_thickness+plastic_thickness+hinge_gap, (top?frame_corner_height:0)];
+    hinge_position=[hinge_inner_diameter/2,frame_corner_width+plastic_thickness+hinge_gap, (top?frame_corner_height:0)];
     cutout_height=hinge_height - hinge_inner_diameter + tolerance;
     union() {
         difference() {
@@ -171,11 +177,11 @@ module front_left_top_corner() {
     render()
     difference() {
         add_hinge_post(top=true)
-            frame_corner_with_lugs( frame_corner_thickness, frame_corner_height,frame_thickness, 0.9);
+            frame_corner_with_lugs( frame_corner_width, frame_corner_height,frame_thickness, 0.9);
         
         // subtract gap for left wall
-        translate([-frame_corner_thickness+frame_thickness,0,0]) 
-            cube([frame_corner_thickness,panel_thickness,frame_corner_height*2]);
+        translate([-frame_corner_width+frame_thickness,0,0]) 
+            cube([frame_corner_width,panel_thickness,frame_corner_height*2]);
     }
 }
 
@@ -183,26 +189,26 @@ module front_left_bottom_corner() {
     render()
     difference() {
         add_hinge_post(top=false)
-            frame_corner_with_lugs( frame_corner_thickness, frame_corner_height,frame_thickness, 0.9);
+            frame_corner_with_lugs( frame_corner_width, frame_corner_height,frame_thickness, 0.9);
         
         // subtract gap for left wall
-        translate([-frame_corner_thickness+frame_thickness,0,frame_offset_v]) 
-            cube([frame_corner_thickness,panel_thickness,frame_corner_height]);
+        translate([-frame_corner_width+frame_thickness,0,frame_offset_v]) 
+            cube([frame_corner_width,panel_thickness,frame_corner_height]);
     }
 
 }
 
-translate([-enclosure_width,0,0]) back_left_bottom_corner();
+translate([-enclosure_depth,0,0]) back_left_bottom_corner();
 
-translate([-enclosure_width,0,enclosure_height-frame_corner_height]) back_left_top_corner();
+translate([-enclosure_depth,0,enclosure_height-frame_corner_height]) back_left_top_corner();
 
 translate([0,0,enclosure_height-frame_corner_height]) 
     front_left_top_corner();
 translate([(hinge_inner_diameter)/2,
-    frame_corner_thickness+plastic_thickness+hinge_gap,
+    frame_corner_width+plastic_thickness+hinge_gap,
     enclosure_height]) 
         rotate([180,0,90]) 
             hinge();
 
 front_left_bottom_corner();
-translate([(hinge_inner_diameter)/2,frame_corner_thickness+plastic_thickness+hinge_gap,0]) rotate([0,0,90]) hinge();
+translate([(hinge_inner_diameter)/2,frame_corner_width+plastic_thickness+hinge_gap,0]) rotate([0,0,90]) hinge();
