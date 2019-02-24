@@ -1,11 +1,13 @@
 $fn=50;
 
+open=true;
+exploded=true;
+
 plastic_thickness=2.0;
 tolerance=0.22;
 
 // Specify enclosure dimensions
 enclosure_height=475.0;
-
 enclosure_depth=535.0;
 
 // Wall panel dimensions
@@ -28,6 +30,7 @@ frame_side = (enclosure_height - frame_corner_height*2)/2;
 frame_clip_height=50.5;
 corner_roundness=0.9;
 frame_vertical_height = (enclosure_height-frame_corner_height*2)/2;
+frame_connector_depth = 8.0;
 
 // Interlock
 knob_diameter=9.8;
@@ -47,7 +50,6 @@ hinge_clearance = 1.5;
 hinge_ring_thickness=3.0;
 hinge_thickness=plastic_thickness*2 + door_panel_thickness;
 hinge_offset=6.5+plastic_thickness;
-
 
 enclosure_width=2*(frame_corner_width+plastic_thickness+hinge_gap
     +door_hinge_offset) + door_panel_width*2 +tolerance;
@@ -140,13 +142,17 @@ module interlock() {
 module frame( width, height, thickness, roundness ) {
     color("SteelBlue") 
         linear_extrude(height=height)
-                    apply_roundness(roundness, $fs =0.01) 
+            apply_roundness(roundness, $fs =0.01) 
                     square( [thickness, width] );
 }
 
-module frame_corner( width, height, thickness, roundness ) {         
-        cornerize()
-            frame( width, height, thickness, roundness );
+module frame_corner( width, height, thickness, roundness ) {    
+    union() {
+        mirror([0,1,0]) 
+            rotate([0,0,-90])
+                frame( width, height, thickness, roundness );
+        frame( width, height, thickness + panel_thickness, roundness );
+    }   
 }
 
 module add_lugs() {   
@@ -293,39 +299,52 @@ module add_hinge_post( top=false ) {
 module front_left_top_corner() {
     difference() {
         translate([0,0,enclosure_height-frame_corner_height]) 
-            add_hinge_post(top=true) 
-                add_lugs() 
-                    frame_corner( frame_corner_width, 
-                        frame_corner_height,frame_thickness, 
-                        corner_roundness);
+            difference() {
+                add_hinge_post(top=true) 
+                    add_lugs() 
+                        frame_corner( frame_corner_width, 
+                            frame_corner_height,frame_thickness, 
+                            corner_roundness);
+                scale(1.05) frame_connector_corner();
+            }
         fix_preview() left_wall_panel();
     }
 }
 
 module front_left_bottom_corner() {
-        add_hinge_post(top=false)
-            add_lugs()
+    add_hinge_post(top=false)
+        add_lugs()
+            union() {
                 difference() {
                     frame_corner( frame_corner_width, 
                         frame_corner_height,frame_thickness, 
                         corner_roundness);
                     fix_preview() left_wall_panel();
                 }
+                translate([0,0,frame_corner_height])
+                    frame_connector_corner();
+            }
 }
 
 module front_left_vertical() {
-    union() {
-        frame_corner( frame_corner_width, 
-            frame_vertical_height, frame_thickness, 
-            corner_roundness );
-        
-         translate([hinge_inner_diameter*2, 
-                hinge_inner_diameter,0]) 
-            rotate([0,0,-90])
-                frame( hinge_inner_diameter*3+2.6, 
-                    frame_vertical_height, 
-                    hinge_inner_diameter, 
-                    corner_roundness );
+    difference() {
+        union() {   
+            frame_corner( frame_corner_width, 
+                frame_vertical_height, frame_thickness, 
+                corner_roundness );
+            
+             translate([hinge_inner_diameter*2, 
+                    hinge_inner_diameter,0]) 
+                rotate([0,0,-90])
+                    frame( hinge_inner_diameter*3+2.6, 
+                        frame_vertical_height, 
+                        hinge_inner_diameter, 
+                        corner_roundness );
+            // add connector
+            translate([0,0,frame_vertical_height])
+                frame_connector_corner();
+        }
+        scale(1.05) frame_connector_corner();
     }
         
 }
@@ -346,25 +365,46 @@ module front_left_vertical_b() {
     }
 }
 
+module frame_connector_corner() {
+    translate([panel_thickness*1.7,panel_thickness*0.70, 0]) 
+        color("SteelBlue") cornerize()
+            frame( frame_corner_width*0.75, frame_connector_depth, 
+                frame_thickness*.20, corner_roundness );
+        
+}
+
+if (!exploded) {
+    %left_wall_panel();
+    %back_wall_panel();
+    %right_wall_panel();
 
 
-%left_wall_panel();
-//%back_wall_panel();
-//%right_wall_panel();
-
-
-%left_door(open);
-//%right_door(open);
-
-//back_left_bottom_corner();
-//back_left_top_corner();
-front_left_top_corner();
-
-front_left_vertical_a();
-front_left_vertical_b();
-
-front_left_bottom_corner();
-
-top_left_hinge(open);
-bottom_left_hinge(open);
-open=false;
+    %left_door(open);
+    %right_door(open);
+    
+    back_left_bottom_corner();
+    back_left_top_corner();
+    front_left_top_corner();
+    front_left_vertical_a();
+    front_left_vertical_b();
+    front_left_bottom_corner();
+    top_left_hinge(open);
+    bottom_left_hinge(open);
+} else { 
+    translate([0,0,90])
+        front_left_top_corner();
+    
+    translate([0,0,30])
+        front_left_vertical_a();
+    
+    translate([0,0,60])
+        front_left_vertical_b();
+    
+    front_left_bottom_corner();
+    
+    translate([0,0,120])
+        top_left_hinge();
+    
+    translate([0,0,-30])
+        bottom_left_hinge();
+}
