@@ -27,6 +27,7 @@ frame_thickness = plastic_thickness*2 + panel_thickness;
 frame_side = (enclosure_height - frame_corner_height*2)/2;
 frame_clip_height=50.5;
 corner_roundness=0.9;
+frame_vertical_height = (enclosure_height-frame_corner_height*2)/2;
 
 // Interlock
 knob_diameter=9.8;
@@ -48,7 +49,8 @@ hinge_thickness=plastic_thickness*2 + door_panel_thickness;
 hinge_offset=6.5+plastic_thickness;
 
 
-enclosure_width=2*(frame_corner_width+plastic_thickness+hinge_gap+door_hinge_offset) + door_panel_width*2 +tolerance;
+enclosure_width=2*(frame_corner_width+plastic_thickness+hinge_gap
+    +door_hinge_offset) + door_panel_width*2 +tolerance;
 
 // applies roundness without altering dimensions of object
 module apply_roundness(r)
@@ -97,7 +99,9 @@ module left_wall_panel() {
 }
 
 module back_wall_panel() {
-    translate([(enclosure_width-panel_width)/2,enclosure_depth-panel_thickness-plastic_thickness,panel_offset_z]) 
+    translate([(enclosure_width-panel_width)/2,
+            enclosure_depth-panel_thickness-plastic_thickness,
+            panel_offset_z]) 
         rotate([-90,-90,0]) 
             wall_panel();
 }
@@ -109,9 +113,11 @@ module right_wall_panel() {
 }
 
 module left_door(open=false) {
-    translate([frame_corner_width+plastic_thickness+hinge_gap,hinge_inner_diameter/2,0]) 
+    translate([frame_corner_width+plastic_thickness+hinge_gap,
+            hinge_inner_diameter/2,0]) 
         rotate([90,0,open?-90:0]) 
-            translate([door_hinge_offset,0,hinge_offset-door_panel_thickness/2])
+            translate([door_hinge_offset,0,hinge_offset-
+                    door_panel_thickness/2])
                 door_panel();
 }
 
@@ -127,15 +133,20 @@ module interlock() {
     color("DarkSeaGreen")
         rotate([0,90,90]) 
             rotate_extrude()
-                polygon([[0,0],[0,lug_height],[rb,lug_height],[rb,2.5],[ra,1],[ra,0]]);
+                polygon([[0,0],[0,lug_height],[rb,lug_height],
+                    [rb,2.5],[ra,1],[ra,0]]);
 }
 
-module frame_corner( width, height, thickness, roundCorners ) {         
+module frame( width, height, thickness, roundness ) {
     color("SteelBlue") 
+        linear_extrude(height=height)
+                    apply_roundness(roundness, $fs =0.01) 
+                    square( [thickness, width] );
+}
+
+module frame_corner( width, height, thickness, roundness ) {         
         cornerize()
-            linear_extrude(height=height)
-                apply_roundness(roundCorners, $fs =0.01) 
-                square( [thickness, width] );
+            frame( width, height, thickness, roundness );
 }
 
 module add_lugs() {   
@@ -145,7 +156,8 @@ module add_lugs() {
         translate([interlock_offset_x,-lug_height,interlock_offset_z]) 
             interlock();
 
-        translate([interlock_offset_x,-lug_height,interlock_offset_z+interlock_gap])
+        translate([interlock_offset_x,-lug_height,
+                interlock_offset_z+interlock_gap])
             interlock(); 
     } 
 }
@@ -155,7 +167,9 @@ module back_left_bottom_corner() {
         translate([0,enclosure_depth,0])
             mirror([0,1,0])
                 add_lugs()
-                    frame_corner( frame_corner_width, frame_corner_height,frame_thickness, corner_roundness);
+                    frame_corner( frame_corner_width, 
+                        frame_corner_height,frame_thickness,
+                        corner_roundness);
         fix_preview2() left_wall_panel();
         fix_preview2() back_wall_panel();
     }
@@ -163,9 +177,13 @@ module back_left_bottom_corner() {
 
 module back_left_top_corner() {              
     difference() {
-        translate([0,enclosure_depth,enclosure_height-frame_corner_height])
+        translate([0,enclosure_depth,
+                enclosure_height-frame_corner_height])
             mirror([0,1,0]) 
-                add_lugs() frame_corner( frame_corner_width, frame_corner_height,frame_thickness, corner_roundness);   
+                add_lugs() 
+                    frame_corner( frame_corner_width,
+                        frame_corner_height,frame_thickness,
+                        corner_roundness);   
         fix_preview3() left_wall_panel();
         fix_preview3() back_wall_panel();
     }
@@ -175,20 +193,25 @@ module hinge_post() {
      union() {
         difference() {
             
-            // add material to support the hinge and fill the gap betwen the perspex
-            // doors and the patsic frame
-            color("SteelBlue")
-            translate([-hinge_inner_diameter*2,-hinge_inner_diameter/2,0]) 
-                linear_extrude(height=frame_corner_height)
-                    apply_roundness(corner_roundness, $fs =0.01) 
-                        square([hinge_inner_diameter*3+1,hinge_inner_diameter]);
+            // add material to support the hinge and fill 
+            // the gap betwen the perspex doors and the plastic frame
+            translate([-hinge_inner_diameter*2, 
+                    hinge_inner_diameter/2,0]) 
+                rotate([0,0,-90])
+                    frame( hinge_inner_diameter*3+1, 
+                        frame_corner_height, hinge_inner_diameter, 
+                        corner_roundness );
             
             // create a negative space that snuggly fits the hinge
             union() {
                 height = hinge_height-hinge_inner_diameter;
-                translate([0,0,height/2]) cube([hinge_inner_diameter+1,hinge_inner_diameter+1,height],true);
+                translate([0,0,height/2]) 
+                    cube([hinge_inner_diameter+1,
+                        hinge_inner_diameter+1,height],true);
                 
-                rotate([0,0,-90]) translate([0,0,-1.4]) scale([1,1.05,1.1]) hinge();
+                rotate([0,0,-90]) 
+                    translate([0,0,-1.4]) 
+                        scale([1,1.05,1.1]) hinge();
             }
         }
         color("SteelBlue")
@@ -207,30 +230,39 @@ module hinge() {
             
             translate([hinge_inner_diameter*3+hinge_clearance,
                 -hinge_offset,height/2-plastic_thickness/2]) 
-                cube([hinge_length,hinge_thickness,height+plastic_thickness],true);
+                cube([hinge_length,hinge_thickness,
+                    height+plastic_thickness],true);
            
             translate([2.52,-5.2,height/2]) 
                 rotate([0,0,40]) 
-                    cube([hinge_inner_diameter,width+1,height],true);
+                    cube([hinge_inner_diameter,
+                        width+1,height],true);
         }
         
         // remove a hole for the hinge post to slide into
         cylinder(d=hinge_inner_diameter+tolerance, height+1);
         
         // trim the left corner
-        translate([4,-17.5,height/2-1]) rotate([0,0,145]) cube([50,width-2,height+3],true);
+        translate([4,-17.5,height/2-1]) 
+            rotate([0,0,145]) 
+                cube([50,width-2,height+3],true);
         
         // smooth the tranistion to the bottom edge
-        translate([19,-10,height/2-17.85]) rotate([-88.5,0.1,96]) cube([40,20,100],true);
+        translate([19,-10,height/2-17.85]) 
+            rotate([-88.5,0.1,96]) 
+                cube([40,20,100],true);
         
         // add a chamfer to right corner
-        translate([hinge_length+8,0,height+25]) rotate([0,45,0]) cube(50,true);
+        translate([hinge_length+8,0,height+25]) 
+            rotate([0,45,0]) 
+            cube(50,true);
     }   
 }
 
 module bottom_left_hinge(open=false) {
     difference() {
-        translate([frame_corner_width+plastic_thickness+hinge_gap,(hinge_inner_diameter)/2,0]) 
+        translate([frame_corner_width+plastic_thickness+hinge_gap,
+                (hinge_inner_diameter)/2,0]) 
             rotate([0,0,open?-90:0]) hinge();
         fix_preview() left_door(open);
     }
@@ -239,7 +271,8 @@ module bottom_left_hinge(open=false) {
 module top_left_hinge(open=false) {
     difference() {
         translate([0,0,enclosure_height])
-            translate([frame_corner_width+plastic_thickness+hinge_gap,(hinge_inner_diameter)/2,0])
+            translate([frame_corner_width+plastic_thickness+
+                hinge_gap,(hinge_inner_diameter)/2,0])
                 mirror([0,0,1]) 
                 rotate([0,0,open?-90:0]) hinge();
         fix_preview() left_door(open);
@@ -247,12 +280,13 @@ module top_left_hinge(open=false) {
 }
 
 module add_hinge_post( top=false ) {
-    hinge_position=[frame_corner_width+plastic_thickness+hinge_gap, hinge_inner_diameter/2, (top?frame_corner_height:0)];
-    cutout_height=hinge_height - hinge_inner_diameter + tolerance;
+    hinge_position=[frame_corner_width+plastic_thickness+hinge_gap,
+          hinge_inner_diameter/2, (top?frame_corner_height:0)];
     union() {
         children(0);
-        fix_preview() translate(hinge_position) mirror(top?[0,0,1]:[0,0,0])
-            rotate([0,0,0]) hinge_post();
+        fix_preview() translate(hinge_position) 
+            mirror(top?[0,0,1]:[0,0,0])
+                hinge_post();
     }
 }
 
@@ -260,7 +294,10 @@ module front_left_top_corner() {
     difference() {
         translate([0,0,enclosure_height-frame_corner_height]) 
             add_hinge_post(top=true) 
-                add_lugs() frame_corner( frame_corner_width, frame_corner_height,frame_thickness, 0.9);
+                add_lugs() 
+                    frame_corner( frame_corner_width, 
+                        frame_corner_height,frame_thickness, 
+                        corner_roundness);
         fix_preview() left_wall_panel();
     }
 }
@@ -269,25 +306,65 @@ module front_left_bottom_corner() {
         add_hinge_post(top=false)
             add_lugs()
                 difference() {
-                    frame_corner( frame_corner_width, frame_corner_height,frame_thickness, 0.9);
+                    frame_corner( frame_corner_width, 
+                        frame_corner_height,frame_thickness, 
+                        corner_roundness);
                     fix_preview() left_wall_panel();
                 }
 }
 
+module front_left_vertical() {
+    union() {
+        frame_corner( frame_corner_width, 
+            frame_vertical_height, frame_thickness, 
+            corner_roundness );
+        
+         translate([hinge_inner_diameter*2, 
+                hinge_inner_diameter,0]) 
+            rotate([0,0,-90])
+                frame( hinge_inner_diameter*3+2.6, 
+                    frame_vertical_height, 
+                    hinge_inner_diameter, 
+                    corner_roundness );
+    }
+        
+}
 
-/*%left_wall_panel();
-%back_wall_panel();
-%right_wall_panel();
+module front_left_vertical_a() {
+    difference() {
+        translate([0,0,frame_corner_height])
+            front_left_vertical();
+        fix_preview() left_wall_panel();
+    }
+}
+
+module front_left_vertical_b() {
+    difference() {
+        translate([0,0,frame_corner_height+frame_vertical_height])
+            front_left_vertical();
+        fix_preview() left_wall_panel();
+    }
+}
+
+
+
+%left_wall_panel();
+//%back_wall_panel();
+//%right_wall_panel();
 
 
 %left_door(open);
-%right_door(open);
+//%right_door(open);
 
-back_left_bottom_corner();
-back_left_top_corner();*/
+//back_left_bottom_corner();
+//back_left_top_corner();
 front_left_top_corner();
-//front_left_bottom_corner();
 
-//top_left_hinge(open);
-//bottom_left_hinge(open);
+front_left_vertical_a();
+front_left_vertical_b();
+
+front_left_bottom_corner();
+
+top_left_hinge(open);
+bottom_left_hinge(open);
 open=false;
