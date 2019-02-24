@@ -46,6 +46,7 @@ hinge_ring_thickness=3.0;
 hinge_thickness=plastic_thickness*2 + door_panel_thickness;
 hinge_offset=6.5+plastic_thickness;
 
+
 enclosure_width=2*(frame_corner_width+plastic_thickness+hinge_gap+door_hinge_offset) + door_panel_width*2 +tolerance;
 
 // applies roundness without altering dimensions of object
@@ -195,26 +196,29 @@ module hinge_post() {
 module hinge() {
     height = hinge_height-hinge_inner_diameter;
     width = hinge_inner_diameter+hinge_ring_thickness;
-    
     difference() {
         
         // create the base shape for the hinge
         color("Salmon") union() {
             cylinder(d=width, height);
             
-            translate([hinge_inner_diameter*3+hinge_clearance,-hinge_offset,height/2]) 
-                cube([hinge_length,hinge_thickness,height],true);
-            
-            translate([hinge_ring_thickness,-width/2.3,height/2]) 
-                rotate([0,0,55]) 
-                    cube([hinge_inner_diameter*0.7,width,height],true);
+            translate([hinge_inner_diameter*3+hinge_clearance,
+                -hinge_offset,height/2-plastic_thickness/2]) 
+                cube([hinge_length,hinge_thickness,height+plastic_thickness],true);
+           
+            translate([2.52,-5.2,height/2]) 
+                rotate([0,0,40]) 
+                    cube([hinge_inner_diameter,width+1,height],true);
         }
         
         // remove a hole for the hinge post to slide into
         cylinder(d=hinge_inner_diameter+tolerance, height+1);
         
         // trim the left corner
-        translate([hinge_inner_diameter/2,-width-hinge_inner_diameter/2.9,height/2]) rotate([0,0,70]) cube([hinge_inner_diameter,width,height],true);
+        translate([4,-17.5,height/2]) rotate([0,0,145]) cube([50,width-2,height],true);
+        
+        // smooth the tranistion to the bottom edge
+        translate([23,-13,height/2-19.3]) rotate([-84,0,90]) cube([80,20,height+80],true);
         
         // add a chamfer to right corner
         translate([hinge_length+8,0,height+25]) rotate([0,45,0]) cube(50,true);
@@ -268,7 +272,7 @@ module front_left_bottom_corner() {
 }
 
 
-/*%left_wall_panel();
+%left_wall_panel();
 %back_wall_panel();
 %right_wall_panel();
 
@@ -278,9 +282,9 @@ module front_left_bottom_corner() {
 
 back_left_bottom_corner();
 back_left_top_corner();
-front_left_top_corner();*/
+front_left_top_corner();
 front_left_bottom_corner();
 
-//top_left_hinge(open);
+top_left_hinge(open);
 bottom_left_hinge(open);
 open=false;
