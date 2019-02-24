@@ -26,6 +26,7 @@ frame_corner_height=79.0;
 frame_thickness = plastic_thickness*2 + panel_thickness;
 frame_side = (enclosure_height - frame_corner_height*2)/2;
 frame_clip_height=50.5;
+corner_roundness=0.9;
 
 // Interlock
 knob_diameter=9.8;
@@ -154,7 +155,7 @@ module back_left_bottom_corner() {
         translate([0,enclosure_depth,0])
             mirror([0,1,0])
                 add_lugs()
-                    frame_corner( frame_corner_width, frame_corner_height,frame_thickness, 0.9);
+                    frame_corner( frame_corner_width, frame_corner_height,frame_thickness, corner_roundness);
         fix_preview2() left_wall_panel();
         fix_preview2() back_wall_panel();
     }
@@ -164,7 +165,7 @@ module back_left_top_corner() {
     difference() {
         translate([0,enclosure_depth,enclosure_height-frame_corner_height])
             mirror([0,1,0]) 
-                add_lugs() frame_corner( frame_corner_width, frame_corner_height,frame_thickness, 0.9);   
+                add_lugs() frame_corner( frame_corner_width, frame_corner_height,frame_thickness, corner_roundness);   
         fix_preview3() left_wall_panel();
         fix_preview3() back_wall_panel();
     }
@@ -178,14 +179,16 @@ module hinge_post() {
             // doors and the patsic frame
             color("SteelBlue")
             translate([-hinge_inner_diameter*2,-hinge_inner_diameter/2,0]) 
-                cube([hinge_inner_diameter*2,hinge_inner_diameter,frame_corner_height]);
+                linear_extrude(height=frame_corner_height)
+                    apply_roundness(corner_roundness, $fs =0.01) 
+                        square([hinge_inner_diameter*3+1,hinge_inner_diameter]);
             
             // create a negative space that snuggly fits the hinge
             union() {
-                height = hinge_height-hinge_inner_diameter + tolerance;
+                height = hinge_height-hinge_inner_diameter;
                 translate([0,0,height/2]) cube([hinge_inner_diameter+1,hinge_inner_diameter+1,height],true);
                 
-                rotate([0,0,-90]) scale(1.05) hinge();
+                rotate([0,0,-90]) translate([0,0,-1.4]) scale([1,1.05,1.1]) hinge();
             }
         }
         color("SteelBlue")
@@ -215,10 +218,10 @@ module hinge() {
         cylinder(d=hinge_inner_diameter+tolerance, height+1);
         
         // trim the left corner
-        translate([4,-17.5,height/2]) rotate([0,0,145]) cube([50,width-2,height],true);
+        translate([4,-17.5,height/2-1]) rotate([0,0,145]) cube([50,width-2,height+3],true);
         
         // smooth the tranistion to the bottom edge
-        translate([23,-13,height/2-19.3]) rotate([-84,0,90]) cube([80,20,height+80],true);
+        translate([19,-10,height/2-17.85]) rotate([-88.5,0.1,96]) cube([40,20,100],true);
         
         // add a chamfer to right corner
         translate([hinge_length+8,0,height+25]) rotate([0,45,0]) cube(50,true);
@@ -272,7 +275,7 @@ module front_left_bottom_corner() {
 }
 
 
-%left_wall_panel();
+/*%left_wall_panel();
 %back_wall_panel();
 %right_wall_panel();
 
@@ -281,10 +284,10 @@ module front_left_bottom_corner() {
 %right_door(open);
 
 back_left_bottom_corner();
-back_left_top_corner();
+back_left_top_corner();*/
 front_left_top_corner();
-front_left_bottom_corner();
+//front_left_bottom_corner();
 
-top_left_hinge(open);
-bottom_left_hinge(open);
+//top_left_hinge(open);
+//bottom_left_hinge(open);
 open=false;
