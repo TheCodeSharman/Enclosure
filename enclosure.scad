@@ -40,7 +40,7 @@ interlock_gap=32;
 hinge_inner_diameter=10;
 hinge_height=25;
 hinge_length=53;
-hinge_gap = 2.0;
+hinge_gap = 9.6;
 hinge_clearance = 1.5;
 hinge_ring_thickness=3.0;
 hinge_thickness=plastic_thickness*2 + door_panel_thickness;
@@ -78,6 +78,7 @@ module fix_preview3() {
     translate($preview?[-0.001,0.001,0.001]:[0,0,0])
         children(0);
 }
+
 
 module wall_panel() {
     cube([panel_height,panel_width,panel_thickness]);
@@ -169,36 +170,53 @@ module back_left_top_corner() {
 }
 
 module hinge_post() {
-    color("SteelBlue") 
-    difference() {
-        union() {
-            translate([-hinge_inner_diameter,0,hinge_height-hinge_inner_diameter/2+tolerance]) 
-                cube([hinge_inner_diameter*2,hinge_inner_diameter,hinge_inner_diameter],true);
-            cylinder(d=hinge_inner_diameter, hinge_height+tolerance);
+     union() {
+        difference() {
+            
+            // add material to support the hinge and fill the gap betwen the perspex
+            // doors and the patsic frame
+            color("SteelBlue")
+            translate([-hinge_inner_diameter*2,-hinge_inner_diameter/2,0]) 
+                cube([hinge_inner_diameter*2,hinge_inner_diameter,frame_corner_height]);
+            
+            // create a negative space that snuggly fits the hinge
+            union() {
+                height = hinge_height-hinge_inner_diameter + tolerance;
+                translate([0,0,height/2]) cube([hinge_inner_diameter+1,hinge_inner_diameter+1,height],true);
+                
+                rotate([0,0,-90]) scale(1.05) hinge();
+            }
         }
-        
-        // add a chamfer
-        translate([2,0,33]) rotate([0,30,0]) cube(20,true);
+        color("SteelBlue")
+        cylinder(d=hinge_inner_diameter, frame_corner_height);
     }
 }
 
 module hinge() {
     height = hinge_height-hinge_inner_diameter;
-    width = hinge_inner_diameter+tolerance+hinge_ring_thickness;
-    color("Salmon")
+    width = hinge_inner_diameter+hinge_ring_thickness;
+    
     difference() {
         
         // create the base shape for the hinge
-        union() {
+        color("Salmon") union() {
             cylinder(d=width, height);
+            
             translate([hinge_inner_diameter*3+hinge_clearance,-hinge_offset,height/2]) 
                 cube([hinge_length,hinge_thickness,height],true);
+            
+            translate([hinge_ring_thickness,-width/2.3,height/2]) 
+                rotate([0,0,55]) 
+                    cube([hinge_inner_diameter*0.7,width,height],true);
         }
         
         // remove a hole for the hinge post to slide into
-        fix_preview() cylinder(d=hinge_inner_diameter+tolerance, height);
+        cylinder(d=hinge_inner_diameter+tolerance, height+1);
         
-        // add a chamfer
+        // trim the left corner
+        translate([hinge_inner_diameter/2,-width-hinge_inner_diameter/2.9,height/2]) rotate([0,0,70]) cube([hinge_inner_diameter,width,height],true);
+        
+        // add a chamfer to right corner
         translate([hinge_length+8,0,height+25]) rotate([0,45,0]) cube(50,true);
     }   
 }
@@ -225,15 +243,7 @@ module add_hinge_post( top=false ) {
     hinge_position=[frame_corner_width+plastic_thickness+hinge_gap, hinge_inner_diameter/2, (top?frame_corner_height:0)];
     cutout_height=hinge_height - hinge_inner_diameter + tolerance;
     union() {
-        difference() {
-            children(0);
-
-            // subtract a space for the hinge post
-            translate([-hinge_inner_diameter/2+hinge_gap-hinge_ring_thickness-tolerance*3,-frame_thickness/2,(top?-cutout_height:0)])
-                translate(hinge_position) 
-                    fix_preview()
-                        cube([frame_thickness,hinge_inner_diameter*2,cutout_height]);
-        }
+        children(0);
         fix_preview() translate(hinge_position) mirror(top?[0,0,1]:[0,0,0])
             rotate([0,0,0]) hinge_post();
     }
@@ -258,18 +268,19 @@ module front_left_bottom_corner() {
 }
 
 
-%left_wall_panel();
+/*%left_wall_panel();
 %back_wall_panel();
 %right_wall_panel();
 
-open=false;
+
 %left_door(open);
 %right_door(open);
 
 back_left_bottom_corner();
 back_left_top_corner();
-front_left_top_corner();
+front_left_top_corner();*/
 front_left_bottom_corner();
 
-top_left_hinge(open);
+//top_left_hinge(open);
 bottom_left_hinge(open);
+open=false;
