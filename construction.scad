@@ -33,11 +33,11 @@ module frame_corner( width, height, thickness, roundness ) {
     }   
 }
 
-module frame_connector_corner() {
+module frame_connector_corner(clearance=0) {
     translate([panel_thickness*1.7,panel_thickness*0.70, 0]) 
         color("SteelBlue") cornerize()
             frame( frame_corner_width*0.75, frame_connector_depth, 
-                frame_thickness*.20, corner_roundness );
+                frame_thickness*.20+clearance, corner_roundness );
         
 }
 
@@ -54,10 +54,10 @@ module add_lugs() {
     } 
 }
 
-module add_connector() {
+module add_connector(height=frame_corner_height) {
     union() {
         children(0);
-        translate([0,0,frame_corner_height])
+        translate([0,0,height])
             frame_connector_corner();
     }
 }
@@ -103,12 +103,12 @@ module hinge_post() {
             union() {
                 height = hinge_height-hinge_inner_diameter;
                 translate([0,0,height/2]) 
-                    cube([hinge_inner_diameter+1,
-                        hinge_inner_diameter+1,height],true);
+                    cube([hinge_inner_diameter+2,
+                        hinge_inner_diameter+2,height+0.2],true);
                 
                 rotate([0,0,-90]) 
                     translate([0,0,-1.4]) 
-                        scale([1,1.05,1.1]) hinge();
+                        scale([1.1,1.1,1.1]) hinge();
             }
         }
         color("SteelBlue")
@@ -138,7 +138,7 @@ module hinge() {
         }
         
         // remove a hole for the hinge post to slide into
-        cylinder(d=hinge_inner_diameter+tolerance, height+1);
+        cylinder(d=hinge_inner_diameter+tolerance_smooth, height+1);
         
         // trim the left corner
         translate([4,-17.5,height/2-1]) 
@@ -157,26 +157,27 @@ module hinge() {
     }   
 }
 
-module frame_vertical() {
+module add_connector_slot() {
     difference() {
-        union() {   
-            frame_corner( frame_corner_width, 
-                frame_vertical_height, frame_thickness, 
-                corner_roundness );
-            
-             translate([hinge_inner_diameter*2, 
-                    hinge_inner_diameter,0]) 
-                rotate([0,0,-90])
-                    frame( hinge_inner_diameter*3+2.6, 
-                        frame_vertical_height, 
-                        hinge_inner_diameter, 
-                        corner_roundness );
-            // add connector
-            translate([0,0,frame_vertical_height])
-                frame_connector_corner();
-        }
-        // make a tight fit
-        scale(0.9999) frame_connector_corner();
+        children(0);
+        frame_connector_corner(tolerance_tight);
     }
-        
+}
+
+module frame_vertical() {
+    add_connector_slot()
+        add_connector(frame_vertical_height)
+            union() {   
+                frame_corner( frame_corner_width, 
+                    frame_vertical_height, frame_thickness, 
+                    corner_roundness );
+                
+                translate([hinge_inner_diameter*2, 
+                        hinge_inner_diameter,0]) 
+                    rotate([0,0,-90])
+                        frame( hinge_inner_diameter*3+2.6, 
+                            frame_vertical_height, 
+                            hinge_inner_diameter, 
+                            corner_roundness );
+            }     
 }

@@ -14,3 +14,6 @@ module front_left_bottom_corner() {
                     fix_preview() left_wall_panel();
                 }
 }
+
+//%left_wall_panel();
+front_left_bottom_corner();

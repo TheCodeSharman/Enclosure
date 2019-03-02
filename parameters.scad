@@ -2,7 +2,8 @@ $fn=50;
 
 // Wall thickness and tolerance
 plastic_thickness=2.0;
-tolerance=0.22;
+tolerance_smooth=0.30;
+tolerance_tight=0.25;
 
 // Specify enclosure dimensions
 enclosure_height=475.0;
@@ -50,4 +51,4 @@ hinge_thickness=plastic_thickness*2 + door_panel_thickness;
 hinge_offset=6.5+plastic_thickness;
 
 enclosure_width=2*(frame_corner_width+plastic_thickness+hinge_gap
-    +door_hinge_offset) + door_panel_width*2 +tolerance;
+    +door_hinge_offset) + door_panel_width*2 +tolerance_smooth;

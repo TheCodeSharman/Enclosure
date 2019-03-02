@@ -24,7 +24,7 @@ use <front_right_vertical_b.scad>
 
 /* Alter the following to change the global configuration displayed in preview */
 open=false;         // are the doors open or closed?
-exploded=false;     // show the verticl pieces in an exploded view
+exploded=true;     // show the verticl pieces in an exploded view
 plater=false;       // turn on the plater view even when in preview mode
 
 /*

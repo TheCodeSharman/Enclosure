@@ -10,3 +10,5 @@ module front_left_vertical_a() {
         fix_preview() left_wall_panel();
     }
 }
+
+front_left_vertical_a();
