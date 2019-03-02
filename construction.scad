@@ -62,6 +62,30 @@ module add_connector() {
     }
 }
 
+module add_hinge_post( top=false ) {
+    hinge_position=[frame_corner_width+plastic_thickness+hinge_gap,
+          hinge_inner_diameter/2, (top?frame_corner_height:0)];
+    union() {
+        children(0);
+        fix_preview() translate(hinge_position) 
+            mirror(top?[0,0,1]:[0,0,0])
+                hinge_post();
+    }
+}
+
+module add_outside_frame( height ) {
+    color("SteelBlue")
+    union() {
+        children(0);
+        translate([-plastic_thickness,-plastic_thickness,0])
+            frame( frame_corner_width+plastic_thickness, height, frame_thickness,
+                corner_roundness);
+        translate([14.5,0.05,height/2])
+            rotate([0,0,8])
+            cube([frame_corner_width/2,plastic_thickness,height],true);
+    }
+}
+
 module hinge_post() {
      union() {
         difference() {
@@ -131,4 +155,28 @@ module hinge() {
             rotate([0,45,0]) 
             cube(50,true);
     }   
+}
+
+module frame_vertical() {
+    difference() {
+        union() {   
+            frame_corner( frame_corner_width, 
+                frame_vertical_height, frame_thickness, 
+                corner_roundness );
+            
+             translate([hinge_inner_diameter*2, 
+                    hinge_inner_diameter,0]) 
+                rotate([0,0,-90])
+                    frame( hinge_inner_diameter*3+2.6, 
+                        frame_vertical_height, 
+                        hinge_inner_diameter, 
+                        corner_roundness );
+            // add connector
+            translate([0,0,frame_vertical_height])
+                frame_connector_corner();
+        }
+        // make a tight fit
+        scale(0.9999) frame_connector_corner();
+    }
+        
 }

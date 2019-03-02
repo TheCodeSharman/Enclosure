@@ -28,7 +28,7 @@ module back_wall_panel() {
 }
 
 module right_wall_panel() {
-    translate([enclosure_width-panel_thickness-plastic_thickness,0,panel_offset_z]) 
+    translate([enclosure_width,0,panel_offset_z]) 
         rotate([0,-90,0]) 
             wall_panel();
 }
