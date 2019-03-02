@@ -1,6 +1,6 @@
 /*
 Specialized construction functions specifically for the enclosure.
-By combining these operators the various instances of enclosur pieces 
+By combining these operators the various instances of enclosure pieces 
 can be constructed.
 */
 include <parameters.scad>;
