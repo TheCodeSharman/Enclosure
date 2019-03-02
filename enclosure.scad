@@ -3,6 +3,14 @@ use <utility.scad>;
 use <support.scad>;
 use <construction.scad>;
 
+/*
+Each seperate enclsoure piece has a seperate module; they are built using the
+constrcution.scad modules in various configurations.
+*/
+use <back_left_bottom_corner.scad>;
+use <back_left_top_corner.scad>;
+use <bottom_left_hinge.scad>;
+
 /* Alter the following to change the global configuration displayed in preview */
 open=true;         // are the doors open or closed?
 exploded=false;     // show the verticl pieces in an exploded view
@@ -19,12 +27,16 @@ if ($preview && !plater) {
     if (exploded) {
         exploded_view();
     } else if (working) { 
-        front_right_bottom_corner();
+        working_view();
     } else {
         context_view();
     }
 } else {
+    plater_view();
+}
 
+module working_view() {
+    front_right_bottom_corner();
 }
 
 module plater_view() {
@@ -84,46 +96,6 @@ module context_view() {
     bottom_right_hinge(open);
 }
 
-/*
-Each seperate enclsoure piece has a seperate module; they are built using the
-constrcution.scad modules in various configurations.
-*/
-module back_left_bottom_corner() {
-    difference() {
-        translate([0,enclosure_depth,0])
-            mirror([0,1,0])
-                add_lugs()
-                    add_connector()
-                        frame_corner( frame_corner_width, 
-                            frame_corner_height,frame_thickness,
-                            corner_roundness);
-        fix_preview2() left_wall_panel();
-        fix_preview2() back_wall_panel();
-    }
-}
-
-module back_left_top_corner() {              
-    difference() {
-        translate([0,enclosure_depth,
-                enclosure_height-frame_corner_height])
-            mirror([0,1,0]) 
-                add_lugs() 
-                    frame_corner( frame_corner_width,
-                        frame_corner_height,frame_thickness,
-                        corner_roundness);   
-        fix_preview3() left_wall_panel();
-        fix_preview3() back_wall_panel();
-    }
-}
-
-module bottom_left_hinge(open=false) {
-    difference() {
-        translate([frame_corner_width+plastic_thickness+hinge_gap,
-                (hinge_inner_diameter)/2,0]) 
-            rotate([0,0,open?-90:0]) hinge();
-        fix_preview() left_door(open);
-    }
-}
 
 module bottom_right_hinge(open=false) {
     difference() {
