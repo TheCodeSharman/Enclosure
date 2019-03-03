@@ -84,18 +84,18 @@ module add_hinge_post( top=false ) {
                 mirror(top?[0,0,1]:[0,0,0])
                     union() {
                         height = hinge_height-hinge_inner_diameter;
-                        translate([0,0,height/2]) 
+                        translate([0,0,height/2-0.65]) 
                             cube([hinge_inner_diameter+2,
-                                hinge_inner_diameter+2,height+0.2],true);
+                                hinge_inner_diameter+2,height],true);
                         
                         // hinge open
                         rotate([0,0,-90]) 
                             translate([0,0,-1.4]) 
-                                scale([1.1,1.1,1.1]) hinge();
+                                scale(1.05) hinge();
                         // hinge closed
                         rotate([0,0,0]) 
                             translate([0,0,-1.4]) 
-                                scale([1.1,1.1,1.1]) hinge();
+                                scale(1.05) hinge();
                     }
             
         }
