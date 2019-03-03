@@ -26,7 +26,7 @@ use <back_left_vertical_b.scad>
 
 /* Alter the following to change the global configuration displayed in preview */
 open=false;         // are the doors open or closed?
-exploded=false;     // show the verticl pieces in an exploded view
+exploded=true;     // show the verticl pieces in an exploded view
 plater=false;       // turn on the plater view even when in preview mode
 
 /*
@@ -55,22 +55,32 @@ module plater_assembly() {
 }
 
 module exploded_view() {
-    translate([0,0,90])
-        front_left_top_corner();
-    
-    translate([0,0,30])
-        front_left_vertical_a();
-    
-    translate([0,0,60])
-        front_left_vertical_b();
-    
-    front_left_bottom_corner();
-    
-    translate([0,0,120])
-        top_left_hinge();
-    
-    translate([0,0,-30])
+
+    explode([0,0,30]) {
+        back_left_bottom_corner();
+        back_left_vertical_a();
+        back_left_vertical_b();
+        back_left_top_corner();
+    }
+
+    explode([0,0,30]) {
         bottom_left_hinge();
+        front_left_bottom_corner();
+        front_left_vertical_a();
+        front_left_vertical_b();
+        front_left_top_corner();
+        top_left_hinge();
+    }
+
+    explode([0,0,30]) {
+        bottom_right_hinge();
+        front_right_bottom_corner();
+        front_right_vertical_a();
+        front_right_vertical_b();
+        front_right_top_corner();
+        top_right_hinge();
+    }
+    
 }
 
 module context_assembly() {
@@ -86,19 +96,19 @@ module context_assembly() {
     back_left_vertical_b();
     back_left_top_corner();
 
-    front_left_top_corner();
+    bottom_left_hinge(open);
+    front_left_bottom_corner();
     front_left_vertical_a();
     front_left_vertical_b();
-    front_left_bottom_corner();
-
+    front_left_top_corner();
     top_left_hinge(open);
-    bottom_left_hinge(open);
     
-    front_right_top_corner();
+    bottom_right_hinge(open);
+    front_right_bottom_corner();
     front_right_vertical_a();
     front_right_vertical_b();
-    front_right_bottom_corner();
-    
+    front_right_top_corner();
     top_right_hinge(open);
-    bottom_right_hinge(open);
+    
+    
 }

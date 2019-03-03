@@ -16,6 +16,13 @@ module cornerize() {
     }
 } 
 
+module explode(vector) {
+    for(i=[0:$children-1])
+        translate(vector*i)
+            children(i);
+
+}
+
 /*
  The fix_preview series of functions are used to make small
  translations in order to reduce conincident plane artifacts
