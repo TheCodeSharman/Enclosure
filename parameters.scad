@@ -3,7 +3,7 @@ $fn=50;
 // Wall thickness and tolerance
 plastic_thickness=2.0;
 tolerance_smooth=0.45;
-tolerance_tight=0.35;
+tolerance_tight=0.40;
 
 // Specify enclosure dimensions
 enclosure_height=475.0;

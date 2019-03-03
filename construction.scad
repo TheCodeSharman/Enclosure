@@ -88,7 +88,12 @@ module add_hinge_post( top=false ) {
                             cube([hinge_inner_diameter+2,
                                 hinge_inner_diameter+2,height+0.2],true);
                         
+                        // hinge open
                         rotate([0,0,-90]) 
+                            translate([0,0,-1.4]) 
+                                scale([1.1,1.1,1.1]) hinge();
+                        // hinge closed
+                        rotate([0,0,0]) 
                             translate([0,0,-1.4]) 
                                 scale([1.1,1.1,1.1]) hinge();
                     }
