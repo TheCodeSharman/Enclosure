@@ -20,7 +20,7 @@ module interlock() {
 // extend the corner frame to be symmetrical with the front corner
 module extend_frame_x(height=frame_corner_height) {
     union() {
-        children(0);
+        children();
         translate([hinge_inner_diameter*2, hinge_inner_diameter,0]) 
             rotate([0,0,-90])
                 frame( hinge_inner_diameter*3+1, 
@@ -55,7 +55,7 @@ module frame_connector_corner(clearance=0) {
 
 module add_lugs() {   
     union() {
-        children(0);
+        children();
 
         translate([interlock_offset_x,-lug_height,interlock_offset_z]) 
             interlock();
@@ -68,7 +68,7 @@ module add_lugs() {
 
 module add_connector(height=frame_corner_height) {
     union() {
-        children(0);
+        children();
         translate([0,0,height])
             frame_connector_corner();
     }
@@ -77,7 +77,7 @@ module add_connector(height=frame_corner_height) {
 module add_hinge_post( top=false ) {
     union() {
         difference() {
-            children(0);
+            children();
             // create a negative space that snuggly fits the hinge
             translate([frame_corner_width+plastic_thickness+hinge_gap,
                 hinge_inner_diameter/2, (top?frame_corner_height:0)])
@@ -103,7 +103,7 @@ module add_hinge_post( top=false ) {
 module add_outside_frame( height ) {
     color("SteelBlue")
     union() {
-        children(0);
+        children();
         translate([-plastic_thickness,-plastic_thickness,0])
             frame( frame_corner_width+plastic_thickness, height, frame_thickness,
                 corner_roundness);
@@ -156,7 +156,7 @@ module hinge() {
 
 module add_connector_slot() {
     difference() {
-        children(0);
+        children();
         frame_connector_corner(tolerance_tight);
     }
 }
