@@ -4,16 +4,17 @@ use <support.scad>
 use <construction.scad>
 
 module front_left_bottom_corner() {
-    add_hinge_post(top=false)
+    difference() {
+        add_hinge_post(top=false)
         add_lugs()
-            add_connector() 
-                difference() {
-                    frame_corner( frame_corner_width, 
-                        frame_corner_height,frame_thickness, 
-                        corner_roundness);
-                    fix_preview() left_wall_panel();
-                }
+        add_connector() 
+        extend_frame_x()
+            frame_corner( frame_corner_width, 
+                frame_corner_height,frame_thickness, 
+                corner_roundness);
+        fix_preview() left_wall_panel();
+    }
 }
 
-//%left_wall_panel();
+%left_wall_panel();
 front_left_bottom_corner();

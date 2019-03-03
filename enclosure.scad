@@ -21,10 +21,12 @@ use <front_left_vertical_a.scad>
 use <front_left_vertical_b.scad>
 use <front_right_vertical_a.scad>
 use <front_right_vertical_b.scad>
+use <back_left_vertical_a.scad>
+use <back_left_vertical_b.scad>
 
 /* Alter the following to change the global configuration displayed in preview */
 open=false;         // are the doors open or closed?
-exploded=true;     // show the verticl pieces in an exploded view
+exploded=false;     // show the verticl pieces in an exploded view
 plater=false;       // turn on the plater view even when in preview mode
 
 /*
@@ -80,6 +82,8 @@ module context_assembly() {
     %right_door(open);
     
     back_left_bottom_corner();
+    back_left_vertical_a();
+    back_left_vertical_b();
     back_left_top_corner();
 
     front_left_top_corner();

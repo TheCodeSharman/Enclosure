@@ -10,6 +10,7 @@ module front_right_top_corner() {
             difference() {
                 add_hinge_post(top=true)  
                 add_outside_frame(frame_corner_height) 
+                extend_frame_x()
                     frame_corner( frame_corner_width, 
                         frame_corner_height,frame_thickness, 
                         corner_roundness);

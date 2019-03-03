@@ -17,6 +17,18 @@ module interlock() {
                     [rb,2.5],[ra,1],[ra,0]]);
 }
 
+// extend the corner frame to be symmetrical with the front corner
+module extend_frame_x(height=frame_corner_height) {
+    union() {
+        children(0);
+        translate([hinge_inner_diameter*2, hinge_inner_diameter,0]) 
+            rotate([0,0,-90])
+                frame( hinge_inner_diameter*3+1, 
+                    height, hinge_inner_diameter, 
+                    corner_roundness );
+    }
+}
+
 module frame( width, height, thickness, roundness ) {
     color("SteelBlue") 
         linear_extrude(height=height)
@@ -63,13 +75,28 @@ module add_connector(height=frame_corner_height) {
 }
 
 module add_hinge_post( top=false ) {
-    hinge_position=[frame_corner_width+plastic_thickness+hinge_gap,
-          hinge_inner_diameter/2, (top?frame_corner_height:0)];
     union() {
-        children(0);
-        fix_preview() translate(hinge_position) 
-            mirror(top?[0,0,1]:[0,0,0])
-                hinge_post();
+        difference() {
+            children(0);
+            // create a negative space that snuggly fits the hinge
+            translate([frame_corner_width+plastic_thickness+hinge_gap,
+                hinge_inner_diameter/2, (top?frame_corner_height:0)])
+                mirror(top?[0,0,1]:[0,0,0])
+                    union() {
+                        height = hinge_height-hinge_inner_diameter;
+                        translate([0,0,height/2]) 
+                            cube([hinge_inner_diameter+2,
+                                hinge_inner_diameter+2,height+0.2],true);
+                        
+                        rotate([0,0,-90]) 
+                            translate([0,0,-1.4]) 
+                                scale([1.1,1.1,1.1]) hinge();
+                    }
+            
+        }
+        color("SteelBlue")
+            translate([frame_corner_width+plastic_thickness+hinge_gap,hinge_inner_diameter/2,0])
+                cylinder(d=hinge_inner_diameter, frame_corner_height);
     }
 }
 
@@ -83,36 +110,6 @@ module add_outside_frame( height ) {
         translate([14.5,0.05,height/2])
             rotate([0,0,8])
             cube([frame_corner_width/2,plastic_thickness,height],true);
-    }
-}
-
-module hinge_post() {
-     union() {
-        difference() {
-            
-            // add material to support the hinge and fill 
-            // the gap betwen the perspex doors and the plastic frame
-            translate([-hinge_inner_diameter*2, 
-                    hinge_inner_diameter/2,0]) 
-                rotate([0,0,-90])
-                    frame( hinge_inner_diameter*3+1, 
-                        frame_corner_height, hinge_inner_diameter, 
-                        corner_roundness );
-            
-            // create a negative space that snuggly fits the hinge
-            union() {
-                height = hinge_height-hinge_inner_diameter;
-                translate([0,0,height/2]) 
-                    cube([hinge_inner_diameter+2,
-                        hinge_inner_diameter+2,height+0.2],true);
-                
-                rotate([0,0,-90]) 
-                    translate([0,0,-1.4]) 
-                        scale([1.1,1.1,1.1]) hinge();
-            }
-        }
-        color("SteelBlue")
-        cylinder(d=hinge_inner_diameter, frame_corner_height);
     }
 }
 
@@ -166,18 +163,9 @@ module add_connector_slot() {
 
 module frame_vertical() {
     add_connector_slot()
-        add_connector(frame_vertical_height)
-            union() {   
-                frame_corner( frame_corner_width, 
-                    frame_vertical_height, frame_thickness, 
-                    corner_roundness );
-                
-                translate([hinge_inner_diameter*2, 
-                        hinge_inner_diameter,0]) 
-                    rotate([0,0,-90])
-                        frame( hinge_inner_diameter*3+2.6, 
-                            frame_vertical_height, 
-                            hinge_inner_diameter, 
-                            corner_roundness );
-            }     
+    add_connector(frame_vertical_height)
+    extend_frame_x(frame_vertical_height)
+        frame_corner( frame_corner_width, 
+            frame_vertical_height, frame_thickness, 
+            corner_roundness );          
 }

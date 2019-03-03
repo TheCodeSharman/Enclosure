@@ -9,7 +9,8 @@ module front_right_bottom_corner() {
             mirror([1,0,0])
                 add_hinge_post(top=false)
                 add_connector()  
-                add_outside_frame(frame_corner_height)               
+                add_outside_frame(frame_corner_height) 
+                extend_frame_x()              
                     frame_corner( frame_corner_width, 
                         frame_corner_height,frame_thickness, 
                         corner_roundness);                   
