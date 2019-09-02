@@ -6,21 +6,20 @@ can be constructed.
 include <parameters.scad>;
 use <utility.scad>;
 
-module interlock() {
+module lug() {
     ra = knob_diameter/2;
     rb = lug_diameter/2;
-    
-    color("DarkSeaGreen")
-        rotate([0,90,90]) 
-            rotate_extrude()
-                polygon([[0,0],[0,lug_height],[rb,lug_height],
-                    [rb,2.5],[ra,1],[ra,0]]);
+    rotate([0,90,90]) 
+        rotate_extrude()
+            polygon([[0,0],[0,lug_height],[rb,lug_height],
+                [rb,2.5],[ra,1],[ra,0]]);
 }
 
 // extend the corner frame to be symmetrical with the front corner
 module extend_frame_x(height=frame_corner_height) {
     union() {
         children();
+        color("SteelBlue")
         translate([hinge_inner_diameter*2, hinge_inner_diameter,0]) 
             rotate([0,0,-90])
                 frame( hinge_inner_diameter*3+1, 
@@ -30,7 +29,6 @@ module extend_frame_x(height=frame_corner_height) {
 }
 
 module frame( width, height, thickness, roundness ) {
-    color("SteelBlue") 
         linear_extrude(height=height)
             apply_roundness(roundness, $fs =0.01) 
                     square( [thickness, width] );
@@ -47,7 +45,7 @@ module frame_corner( width, height, thickness, roundness ) {
 
 module frame_connector_corner(clearance=0) {
     translate([panel_thickness*1.7,panel_thickness*0.70, 0]) 
-        color("SteelBlue") cornerize()
+        cornerize()
             frame( frame_corner_width*0.75, frame_connector_depth, 
                 frame_thickness*.20+clearance, corner_roundness );
         
@@ -57,18 +55,22 @@ module add_lugs() {
     union() {
         children();
 
-        translate([interlock_offset_x,-lug_height,interlock_offset_z]) 
-            interlock();
+        color("DarkSeaGreen")
+        translate([lug_offset_x,-lug_height,lug_offset_z]) 
+            lug();
 
-        translate([interlock_offset_x,-lug_height,
-                interlock_offset_z+interlock_gap])
-            interlock(); 
+        color("DarkSeaGreen")
+        translate([lug_offset_x,-lug_height,
+                lug_offset_z+lug_offset_gap])
+            lug(); 
     } 
 }
 
 module add_connector(height=frame_corner_height) {
     union() {
         children();
+
+        color("SteelBlue")
         translate([0,0,height])
             frame_connector_corner();
     }
@@ -78,6 +80,7 @@ module add_hinge_post( top=false ) {
     union() {
         difference() {
             children();
+
             // create a negative space that snuggly fits the hinge
             translate([frame_corner_width+plastic_thickness+hinge_gap,
                 hinge_inner_diameter/2, (top?frame_corner_height:0)])
@@ -100,19 +103,20 @@ module add_hinge_post( top=false ) {
             
         }
         color("SteelBlue")
-            translate([frame_corner_width+plastic_thickness+hinge_gap,hinge_inner_diameter/2,0])
-                cylinder(d=hinge_inner_diameter, frame_corner_height);
+        translate([frame_corner_width+plastic_thickness+hinge_gap,hinge_inner_diameter/2,0])
+            cylinder(d=hinge_inner_diameter, frame_corner_height);
     }
 }
 
 module add_outside_frame( height ) {
-    color("SteelBlue")
     union() {
         children();
         translate([-plastic_thickness,-plastic_thickness,0])
+            color("SteelBlue")
             frame( frame_corner_width+plastic_thickness, height, frame_thickness,
                 corner_roundness);
         translate([14.5,0.05,height/2])
+            color("SteelBlue")
             rotate([0,0,8])
             cube([frame_corner_width/2,plastic_thickness,height],true);
     }
@@ -124,8 +128,7 @@ module hinge() {
     difference() {
         
         // create the base shape for the hinge
-        color("Salmon") union() {
-            
+        union() {    
             cylinder(d=width, height);
             
             translate([hinge_inner_diameter*3+hinge_clearance,
@@ -173,4 +176,44 @@ module frame_vertical() {
         frame_corner( frame_corner_width, 
             frame_vertical_height, frame_thickness, 
             corner_roundness );          
+}
+
+module add_snap_lock_slot() {
+    difference() {
+        children();
+        translate([0,0,-shelf_height])
+            snaplock(tolerance_tight);
+        
+        // remove area for snaplock to make sure 
+        // straight edges in cut out
+        width = snaplock_size+tolerance_tight+corner_roundness;
+        height = snaplock_connector_size+tolerance_tight;
+        depth = snaplock_width+plastic_thickness*2;
+        translate([width/2-corner_roundness,plastic_thickness/2-1/2,height/2])
+            rotate([90,0,0])
+            cube([width,height,depth+1],true);
+    }
+}
+
+module snaplock(clearance=0) {
+    connector_thickness=frame_thickness*.20+clearance;
+    union() {
+        difference() {
+            translate([snaplock_size,-plastic_thickness,-plastic_thickness])
+                rotate([0,0,90])
+                    frame(snaplock_size+clearance,shelf_height+snaplock_connector_size+plastic_thickness+clearance,
+                        snaplock_width+plastic_thickness*2, corner_roundness);
+            fix_preview2() cube([snaplock_size,snaplock_width+plastic_thickness,shelf_height]);
+        }
+        translate([snaplock_size - snaplock_size/2 - plastic_thickness/2,plastic_thickness-0.2,1])
+            rotate([90,90,90])
+                frame(plastic_thickness,plastic_thickness,plastic_thickness,corner_roundness);
+        // connector
+        translate([snaplock_size/2-connector_thickness/2,
+            frame_connector_depth,
+            shelf_height+snaplock_connector_size/2 - (snaplock_connector_size/4)])
+            rotate([90,0,0])
+            frame(frame_connector_depth,snaplock_connector_size/2,
+                connector_thickness,corner_roundness);
+    }
 }

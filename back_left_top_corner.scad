@@ -10,6 +10,7 @@ module back_left_top_corner() {
             mirror([0,1,0]) 
                 add_lugs() 
                 extend_frame_x()
+                    color("SteelBlue")
                     frame_corner( frame_corner_width,
                         frame_corner_height,frame_thickness,
                         corner_roundness);   

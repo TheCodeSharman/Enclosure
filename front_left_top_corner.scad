@@ -10,10 +10,11 @@ module front_left_top_corner() {
                 add_hinge_post(top=true) 
                 add_lugs() 
                 extend_frame_x()
+                    color("SteelBlue")
                     frame_corner( frame_corner_width, 
                         frame_corner_height,frame_thickness, 
                         corner_roundness);
-                scale(0.9999) frame_connector_corner();
+                frame_connector_corner();
             }
         fix_preview() left_wall_panel();
     }

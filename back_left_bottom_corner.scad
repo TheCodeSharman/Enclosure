@@ -10,6 +10,7 @@ module back_left_bottom_corner() {
                 add_lugs()
                 add_connector() 
                 extend_frame_x()
+                    color("SteelBlue")
                     frame_corner( frame_corner_width, 
                         frame_corner_height,frame_thickness,
                         corner_roundness);

@@ -11,6 +11,7 @@ module front_right_top_corner() {
                 add_outside_frame(frame_corner_height) 
                 add_connector_slot()
                 extend_frame_x()
+                    color("SteelBlue")
                     frame_corner( frame_corner_width, 
                         frame_corner_height,frame_thickness, 
                         corner_roundness);

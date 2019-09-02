@@ -23,6 +23,7 @@ use <front_right_vertical_a.scad>
 use <front_right_vertical_b.scad>
 use <back_left_vertical_a.scad>
 use <back_left_vertical_b.scad>
+use <front_right_bottom_snaplock.scad>
 
 /* Alter the following to change the global configuration displayed in preview */
 open=false;         // are the doors open or closed?
@@ -56,6 +57,7 @@ module plater_assembly() {
 
 module exploded_view() {
 
+    translate([0,0,30])
     explode([0,0,30]) {
         back_left_bottom_corner();
         back_left_vertical_a();
@@ -80,6 +82,9 @@ module exploded_view() {
         front_right_top_corner();
         top_right_hinge();
     }
+
+    translate([0,-30,30])
+        front_right_bottom_snaplock();
     
 }
 
@@ -109,6 +114,7 @@ module context_assembly() {
     front_right_vertical_b();
     front_right_top_corner();
     top_right_hinge(open);
+    front_right_bottom_snaplock();
     
     
 }

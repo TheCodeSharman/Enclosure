@@ -4,6 +4,7 @@ $fn=50;
 plastic_thickness=2.0;
 tolerance_smooth=0.45;
 tolerance_tight=0.40;
+corner_roundness=0.9;
 
 // Specify enclosure dimensions
 enclosure_height=475.0;
@@ -27,18 +28,23 @@ frame_corner_height=79.0;
 frame_thickness = plastic_thickness*2 + panel_thickness;
 frame_side = (enclosure_height - frame_corner_height*2)/2;
 frame_clip_height=50.5;
-corner_roundness=0.9;
 frame_vertical_height = (enclosure_height-frame_corner_height*2)/2;
 frame_connector_depth = 8.0;
 
-// Interlock
+// Lug
 knob_diameter=9.8;
 lug_diameter=6.2;
 lug_gap=1.4;
 lug_height = lug_gap+2.15;
-interlock_offset_x=15.0;
-interlock_offset_z=27.0;
-interlock_gap=32;
+lug_offset_x=15.0;
+lug_offset_z=27.0;
+lug_offset_gap=32;
+
+// Snaplock
+shelf_height=51.0+tolerance_tight;
+snaplock_width=1.3+tolerance_tight;
+snaplock_size=6;
+snaplock_connector_size=15;
 
 // Door hinge
 hinge_inner_diameter=10;
