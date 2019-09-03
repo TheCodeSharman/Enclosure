@@ -178,15 +178,16 @@ module frame_vertical() {
             corner_roundness );          
 }
 
-module add_snap_lock_slot() {
+module add_snap_lock_slot(top=false) {
     difference() {
         children();
-        translate([0,0,-shelf_height])
-            snaplock(tolerance_tight);
+        translate([0,0,top?frame_corner_height+shelf_height:-shelf_height])
+            mirror(top?[0,0,1]:[0,0,0])
+                 snaplock(tolerance_tight,top);
     }
 }
 
-module snaplock(clearance=0) {
+module snaplock(clearance=0,top=false) {
     
     union() {
         difference() {
@@ -207,7 +208,7 @@ module snaplock(clearance=0) {
             rotate([90,0,0])
             frame(frame_connector_depth,snaplock_connector_size/2,
                 connector_thickness,corner_roundness);
-        translate([snaplock_size/4-connector_thickness/2,
+        translate([(top?2:1)*snaplock_size/4-connector_thickness/2,
             frame_connector_depth+snaplock_thickness,
             shelf_height+snaplock_connector_size/2 - (snaplock_connector_size/4)])
             rotate([90,0,0])

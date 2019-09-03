@@ -7,6 +7,7 @@ module front_right_top_corner() {
     difference() {
         translate([enclosure_width,0,enclosure_height-frame_corner_height]) 
             mirror([1,0,0])
+                add_snap_lock_slot(top=true) 
                 add_hinge_post(top=true)  
                 add_outside_frame(frame_corner_height) 
                 add_connector_slot()

@@ -24,10 +24,11 @@ use <front_right_vertical_b.scad>
 use <back_left_vertical_a.scad>
 use <back_left_vertical_b.scad>
 use <front_right_bottom_snaplock.scad>
+use <front_right_top_snaplock.scad>
 
 /* Alter the following to change the global configuration displayed in preview */
-open=false;         // are the doors open or closed?
-exploded=false;     // show the verticl pieces in an exploded view
+open=true;         // are the doors open or closed?
+exploded=true;     // show the verticl pieces in an exploded view
 plater=false;       // turn on the plater view even when in preview mode
 
 /*
@@ -86,6 +87,9 @@ module exploded_view() {
     translate([0,-30,30])
         front_right_bottom_snaplock();
     
+    translate([0,-30,shelf_height+frame_corner_height])
+        front_right_top_snaplock();
+    
 }
 
 module context_assembly() {
@@ -115,6 +119,6 @@ module context_assembly() {
     front_right_top_corner();
     top_right_hinge(open);
     front_right_bottom_snaplock();
-    
+    front_right_top_snaplock();
     
 }
