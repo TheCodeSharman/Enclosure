@@ -183,34 +183,32 @@ module add_snap_lock_slot() {
         children();
         translate([0,0,-shelf_height])
             snaplock(tolerance_tight);
-        
-        // remove area for snaplock to make sure 
-        // straight edges in cut out
-        width = snaplock_size+tolerance_tight+corner_roundness;
-        height = snaplock_connector_size+tolerance_tight;
-        depth = snaplock_width+plastic_thickness*2;
-        translate([width/2-corner_roundness,plastic_thickness/2-1/2,height/2])
-            rotate([90,0,0])
-            cube([width,height,depth+1],true);
     }
 }
 
 module snaplock(clearance=0) {
-    connector_thickness=frame_thickness*.20+clearance;
+    
     union() {
         difference() {
-            translate([snaplock_size,-plastic_thickness,-plastic_thickness])
+            translate([snaplock_size,-snaplock_thickness*3,-plastic_thickness])
                 rotate([0,0,90])
                     frame(snaplock_size+clearance,shelf_height+snaplock_connector_size+plastic_thickness+clearance,
-                        snaplock_width+plastic_thickness*2, corner_roundness);
-            fix_preview2() cube([snaplock_size,snaplock_width+plastic_thickness,shelf_height]);
+                        snaplock_width*2+plastic_thickness, corner_roundness);
+            fix_preview2() cube([snaplock_size*1.1,snaplock_width+plastic_thickness,shelf_height]);
         }
+        // lug at bottom
         translate([snaplock_size - snaplock_size/2 - plastic_thickness/2,plastic_thickness-0.2,1])
             rotate([90,90,90])
                 frame(plastic_thickness,plastic_thickness,plastic_thickness,corner_roundness);
         // connector
-        translate([snaplock_size/2-connector_thickness/2,
-            frame_connector_depth,
+        translate([3*snaplock_size/4-connector_thickness/2,
+            frame_connector_depth+snaplock_thickness,
+            shelf_height+snaplock_connector_size/2 - (snaplock_connector_size/4)])
+            rotate([90,0,0])
+            frame(frame_connector_depth,snaplock_connector_size/2,
+                connector_thickness,corner_roundness);
+        translate([snaplock_size/4-connector_thickness/2,
+            frame_connector_depth+snaplock_thickness,
             shelf_height+snaplock_connector_size/2 - (snaplock_connector_size/4)])
             rotate([90,0,0])
             frame(frame_connector_depth,snaplock_connector_size/2,

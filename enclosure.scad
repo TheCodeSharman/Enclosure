@@ -27,7 +27,7 @@ use <front_right_bottom_snaplock.scad>
 
 /* Alter the following to change the global configuration displayed in preview */
 open=false;         // are the doors open or closed?
-exploded=true;     // show the verticl pieces in an exploded view
+exploded=false;     // show the verticl pieces in an exploded view
 plater=false;       // turn on the plater view even when in preview mode
 
 /*
@@ -36,7 +36,7 @@ to fit with the support objects in preview mode. When rendering for final
 print the peices are placed in a plater arrangement ready for import into
 slicing software.
 */
-if ($preview && !plater) {
+if (!plater) {
     if (exploded) {
         exploded_view();
     } else {

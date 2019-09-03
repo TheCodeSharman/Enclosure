@@ -11,6 +11,6 @@ module bottom_right_hinge(open=false) {
                 rotate([0,0,open?-90:0]) 
                 color("Salmon")
                 hinge();
-        fix_preview() left_door(open);
+        fix_preview() right_door(open);
     }
 }

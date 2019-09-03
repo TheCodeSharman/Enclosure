@@ -42,9 +42,11 @@ lug_offset_gap=32;
 
 // Snaplock
 shelf_height=51.0+tolerance_tight;
-snaplock_width=1.3+tolerance_tight;
-snaplock_size=6;
+snaplock_width=5+tolerance_tight;
+snaplock_size=25;
+snaplock_thickness=plastic_thickness;
 snaplock_connector_size=15;
+connector_thickness=frame_thickness*.4;
 
 // Door hinge
 hinge_inner_diameter=10;
