@@ -22,7 +22,7 @@ module left_wall_panel() {
 module back_wall_panel() {
     translate([(enclosure_width-panel_width)/2,
             enclosure_depth-panel_thickness-plastic_thickness,
-            panel_offset_z]) 
+            0]) 
         rotate([-90,-90,0]) 
             wall_panel();
 }
