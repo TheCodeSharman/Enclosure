@@ -8,7 +8,9 @@ Each seperate enclosure component has a seperate module; they are built using th
 construction.scad modules in various configurations.
 */
 use <back_left_bottom_corner.scad>
+use <back_right_bottom_corner.scad>
 use <back_left_top_corner.scad>
+use <back_right_top_corner.scad>
 use <bottom_left_hinge.scad>
 use <bottom_right_hinge.scad>
 use <top_left_hinge.scad>
@@ -21,14 +23,17 @@ use <front_left_vertical_a.scad>
 use <front_left_vertical_b.scad>
 use <front_right_vertical_a.scad>
 use <front_right_vertical_b.scad>
+use <back_right_vertical_a.scad>
+use <back_right_vertical_b.scad>
 use <back_left_vertical_a.scad>
 use <back_left_vertical_b.scad>
 use <front_right_bottom_snaplock.scad>
+use <back_right_bottom_snaplock.scad>
 use <front_right_top_snaplock.scad>
-
+use <back_right_top_snaplock.scad>
 /* Alter the following to change the global configuration displayed in preview */
 open=true;         // are the doors open or closed?
-exploded=true;     // show the verticl pieces in an exploded view
+exploded=false;     // show the verticl pieces in an exploded view
 plater=false;       // turn on the plater view even when in preview mode
 
 /*
@@ -66,6 +71,14 @@ module exploded_view() {
         back_left_top_corner();
     }
 
+    translate([0,0,30])
+    explode([0,0,30]) {
+        back_right_bottom_corner();
+        back_right_vertical_a();
+        back_right_vertical_b();
+        back_right_top_corner();
+    }
+
     explode([0,0,30]) {
         bottom_left_hinge();
         front_left_bottom_corner();
@@ -89,7 +102,12 @@ module exploded_view() {
     
     translate([0,-30,shelf_height+frame_corner_height])
         front_right_top_snaplock();
-    
+   
+    translate([0,30,30])
+        back_right_bottom_snaplock();
+
+    translate([0,30,shelf_height])
+        back_right_top_snaplock();
 }
 
 module context_assembly() {
@@ -120,5 +138,11 @@ module context_assembly() {
     top_right_hinge(open);
     front_right_bottom_snaplock();
     front_right_top_snaplock();
-    
+
+    back_right_bottom_corner();
+    back_right_vertical_a();
+    back_right_vertical_b();
+    back_right_top_corner();
+    back_right_bottom_snaplock();
+    back_right_top_snaplock();
 }
