@@ -41,7 +41,7 @@ lug_offset_z=27.0;
 lug_offset_gap=32;
 
 // Snaplock
-shelf_height=51.0+tolerance_tight;
+shelf_height=50.3+tolerance_tight;
 snaplock_width=5+tolerance_tight;
 snaplock_size=25;
 snaplock_thickness=plastic_thickness;

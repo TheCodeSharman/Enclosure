@@ -11,6 +11,7 @@ module lug() {
     rb = lug_diameter/2;
     rotate([0,90,90]) 
         rotate_extrude()
+            color("DarkSeaGreen")
             polygon([[0,0],[0,lug_height],[rb,lug_height],
                 [rb,2.5],[ra,1],[ra,0]]);
 }
@@ -54,14 +55,9 @@ module frame_connector_corner(clearance=0) {
 module add_lugs() {   
     union() {
         children();
-
-        color("DarkSeaGreen")
         translate([lug_offset_x,-lug_height,lug_offset_z]) 
             lug();
-
-        color("DarkSeaGreen")
-        translate([lug_offset_x,-lug_height,
-                lug_offset_z+lug_offset_gap])
+        translate([lug_offset_x,-lug_height, lug_offset_z+lug_offset_gap])
             lug(); 
     } 
 }
@@ -86,19 +82,14 @@ module add_hinge_post( top=false ) {
                 hinge_inner_diameter/2, (top?frame_corner_height:0)])
                 mirror(top?[0,0,1]:[0,0,0])
                     union() {
-                        height = hinge_height-hinge_inner_diameter;
-                        translate([0,0,height/2-0.65]) 
+                         height = hinge_height-hinge_inner_diameter;
+                        translate([0,0,height/2]) 
                             cube([hinge_inner_diameter+2,
-                                hinge_inner_diameter+2,height],true);
-                        
+                                hinge_inner_diameter+2,height+1.3],true);
                         // hinge open
-                        rotate([0,0,-90]) 
-                            translate([0,0,-1.4]) 
-                                scale(1.05) hinge();
+                        rotate([0,0,-90]) translate([0,0,-0.1]) scale(1.05) hinge();
                         // hinge closed
-                        rotate([0,0,0]) 
-                            translate([0,0,-1.4]) 
-                                scale(1.05) hinge();
+                        rotate([0,0,0]) translate([0,0,-0.1]) scale(1.05) hinge();
                     }
             
         }
@@ -151,9 +142,9 @@ module hinge() {
                 cube([50,width-2,height+3],true);
         
         // smooth the tranistion to the bottom edge
-        translate([19,-10,height/2-17.85]) 
+        translate([32,-10,height/2-18.25]) 
             rotate([-88.5,0.1,96]) 
-                cube([40,20,100],true);
+                cube([40,20,60],true);
         
         // add a chamfer to right corner
         translate([hinge_length+8,0,height+25]) 
@@ -178,6 +169,12 @@ module frame_vertical() {
             corner_roundness );          
 }
 
+module grip() {
+    rotate([90,90,90])
+        color("DarkSeaGreen")
+        frame(plastic_thickness,plastic_thickness,plastic_thickness,corner_roundness);
+}
+
 module add_snap_lock_slot(top=false) {
     difference() {
         children();
@@ -187,32 +184,42 @@ module add_snap_lock_slot(top=false) {
     }
 }
 
+module lug2() {
+    color("DarkSeaGreen")
+    rotate([90,0,0])
+            frame(frame_connector_depth,snaplock_connector_size/2,
+                connector_thickness,corner_roundness);
+}
+
 module snaplock(clearance=0,top=false) {
-    
+    height = shelf_height+snaplock_connector_size+plastic_thickness+clearance;
     union() {
+        color("Magenta")
         difference() {
             translate([snaplock_size,-snaplock_thickness*3,-plastic_thickness])
                 rotate([0,0,90])
-                    frame(snaplock_size+clearance,shelf_height+snaplock_connector_size+plastic_thickness+clearance,
+                    frame(snaplock_size+clearance,height,
                         snaplock_width*2+plastic_thickness, corner_roundness);
             fix_preview2() cube([snaplock_size*1.1,snaplock_width+plastic_thickness,shelf_height]);
         }
-        // lug at bottom
-        translate([snaplock_size - snaplock_size/2 - plastic_thickness/2,plastic_thickness-0.2,1])
-            rotate([90,90,90])
-                frame(plastic_thickness,plastic_thickness,plastic_thickness,corner_roundness);
-        // connector
+
+        // grips at top
+        translate([5,1,shelf_height+1.5]) grip();
+        translate([18,1,shelf_height+1.5]) grip();
+
+        // grips at bottom
+        translate([5,1,0.5]) grip();
+        translate([18,1,0.5]) grip();
+
+        // connector lugs
         translate([3*snaplock_size/4-connector_thickness/2,
             frame_connector_depth+snaplock_thickness,
-            shelf_height+snaplock_connector_size/2 - (snaplock_connector_size/4)])
-            rotate([90,0,0])
-            frame(frame_connector_depth,snaplock_connector_size/2,
-                connector_thickness,corner_roundness);
+            shelf_height+snaplock_connector_size/2 - (snaplock_connector_size/4) ])
+            lug2();
+
         translate([(top?2:1)*snaplock_size/4-connector_thickness/2,
             frame_connector_depth+snaplock_thickness,
             shelf_height+snaplock_connector_size/2 - (snaplock_connector_size/4)])
-            rotate([90,0,0])
-            frame(frame_connector_depth,snaplock_connector_size/2,
-                connector_thickness,corner_roundness);
+            lug2();
     }
 }

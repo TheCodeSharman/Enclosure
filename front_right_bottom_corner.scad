@@ -2,6 +2,7 @@ include <parameters.scad>
 use <utility.scad>
 use <support.scad>
 use <construction.scad>
+use <bottom_right_hinge.scad>
 
 module front_right_bottom_corner() {
     difference() {
@@ -21,4 +22,5 @@ module front_right_bottom_corner() {
 }
 
 //%right_wall_panel();
+%bottom_right_hinge();
 front_right_bottom_corner();

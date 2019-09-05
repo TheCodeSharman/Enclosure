@@ -14,3 +14,5 @@ module bottom_right_hinge(open=false) {
         fix_preview() right_door(open);
     }
 }
+
+bottom_right_hinge();
