@@ -21,3 +21,7 @@ module back_right_bottom_corner() {
         fix_preview2() back_wall_panel();
     }
 }
+
+%fix_preview2() right_wall_panel();
+%fix_preview2() back_wall_panel();
+back_right_bottom_corner();

@@ -14,4 +14,5 @@ module bottom_left_hinge(open=false) {
     }
 }
 
+%fix_preview() left_door();
 bottom_left_hinge();

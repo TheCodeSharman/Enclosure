@@ -21,3 +21,7 @@ module back_left_top_corner() {
         fix_preview3() back_wall_panel();
     }
 }
+
+%fix_preview3() left_wall_panel();
+%fix_preview3() back_wall_panel();
+back_left_top_corner();

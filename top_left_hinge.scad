@@ -15,3 +15,6 @@ module top_left_hinge(open=false) {
         fix_preview() left_door(open);
     }
 }
+
+%fix_preview() left_door();
+top_left_hinge();

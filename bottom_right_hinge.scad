@@ -15,4 +15,5 @@ module bottom_right_hinge(open=false) {
     }
 }
 
+%fix_preview() right_door();
 bottom_right_hinge();

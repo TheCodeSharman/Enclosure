@@ -16,3 +16,6 @@ module top_right_hinge(open=false) {
         fix_preview() right_door(open);
     }
 }
+
+%fix_preview() right_door();
+top_right_hinge();

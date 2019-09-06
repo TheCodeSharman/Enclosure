@@ -184,11 +184,11 @@ module add_snap_lock_slot(top=false) {
     }
 }
 
-module lug2() {
+module lug2(clearance) {
     color("DarkSeaGreen")
     rotate([90,0,0])
-            frame(frame_connector_depth,snaplock_connector_size/2,
-                connector_thickness,corner_roundness);
+            frame(frame_connector_depth+clearance,snaplock_connector_size/2,
+                connector_thickness+clearance,corner_roundness);
 }
 
 module snaplock(clearance=0,top=false) {
@@ -212,14 +212,14 @@ module snaplock(clearance=0,top=false) {
         translate([18,1,0.5]) grip();
 
         // connector lugs
-        translate([3*snaplock_size/4-connector_thickness/2,
+        translate([3*snaplock_size/4-connector_thickness/2-clearance/2,
             frame_connector_depth+snaplock_thickness,
-            shelf_height+snaplock_connector_size/2 - (snaplock_connector_size/4) ])
-            lug2();
+            shelf_height+snaplock_connector_size/2 - (snaplock_connector_size/4)-clearance/2])
+            lug2(clearance);
 
-        translate([(top?2:1)*snaplock_size/4-connector_thickness/2,
+        translate([(top?2:1)*snaplock_size/4-connector_thickness/2-clearance/2,
             frame_connector_depth+snaplock_thickness,
-            shelf_height+snaplock_connector_size/2 - (snaplock_connector_size/4)])
-            lug2();
+            shelf_height+snaplock_connector_size/2 - (snaplock_connector_size/4)-clearance/2])
+            lug2(clearance);
     }
 }

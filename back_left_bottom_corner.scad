@@ -19,3 +19,7 @@ module back_left_bottom_corner() {
         fix_preview2() back_wall_panel();
     }
 }
+
+fix_preview2() %left_wall_panel();
+fix_preview2() %back_wall_panel();
+back_left_bottom_corner();

@@ -23,3 +23,7 @@ module back_right_top_corner() {
         fix_preview3() back_wall_panel();
     }
 }
+
+%fix_preview2() right_wall_panel();
+%fix_preview3() back_wall_panel();
+back_right_top_corner();

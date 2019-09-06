@@ -21,6 +21,6 @@ module front_right_bottom_corner() {
     }
 }
 
-//%right_wall_panel();
+%right_wall_panel();
 %bottom_right_hinge();
 front_right_bottom_corner();

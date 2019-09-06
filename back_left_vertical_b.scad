@@ -14,5 +14,6 @@ module back_left_vertical_b() {
     }
 }
 
-%back_wall_panel();
+%fix_preview() back_wall_panel();
+%fix_preview() left_wall_panel();
 back_left_vertical_b();

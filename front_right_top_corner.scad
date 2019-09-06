@@ -19,3 +19,6 @@ module front_right_top_corner() {
         fix_preview() right_wall_panel();
     }
 }
+
+%fix_preview() right_wall_panel();
+front_right_top_corner();

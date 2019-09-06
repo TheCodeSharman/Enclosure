@@ -13,3 +13,6 @@ module front_right_vertical_b() {
         fix_preview() right_wall_panel();
     }
 }
+
+%fix_preview() right_wall_panel();
+front_right_vertical_b();

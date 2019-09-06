@@ -34,7 +34,7 @@ use <back_right_top_snaplock.scad>
 /* Alter the following to change the global configuration displayed in preview */
 open=true;         // are the doors open or closed?
 exploded=false;     // show the verticl pieces in an exploded view
-plater=false;       // turn on the plater view even when in preview mode
+plater=true;       // turn on the plater view even when in preview mode
 
 /*
 Each instance of an enclosure piece is created and positionined in 3D space
@@ -53,12 +53,103 @@ if (!plater) {
 }
 
 module plater_assembly() {
-    translate([-20,-75,hinge_height-hinge_inner_diameter]) 
-        rotate([0,180,-90])
+
+    gap_x = 53.5;
+    gap_y = 35;
+
+    translate([gap_x+15,-enclosure_depth+frame_corner_width-2,0])
+        back_left_bottom_corner();
+
+    translate([gap_x*2,-enclosure_depth-5,-frame_corner_height])
+        back_left_vertical_a();
+
+    translate([gap_x*3,-enclosure_depth-5,-(frame_corner_height+frame_vertical_height)])
+        back_left_vertical_b();
+
+    translate([gap_x*3,frame_corner_width,0])
+        rotate([0,0,180])
+            translate([0,-enclosure_depth+frame_corner_width,-(frame_corner_height+frame_vertical_height*2)])
+            back_left_top_corner();
+
+    translate([gap_x*5,gap_y*5-50,hinge_height-hinge_inner_diameter]) 
+        rotate([0,180,0])
             bottom_left_hinge();
-    front_left_bottom_corner();
-    translate([0,-50,-frame_corner_height])
+
+    translate([0,2,0])
+        front_left_bottom_corner();
+
+    translate([gap_x*0,-gap_y,-frame_corner_height]) 
         front_left_vertical_a();
+    
+    translate([gap_x,-gap_y,-(frame_corner_height+frame_vertical_height)]) 
+        front_left_vertical_b();
+
+translate([gap_x*4,0,frame_corner_height])
+        rotate([0,180,0])
+    translate([0,2,-(frame_corner_height+frame_vertical_height*2)])
+        front_left_top_corner();
+
+    translate([-30,gap_y*5-30,-(frame_corner_height*2+frame_vertical_height*2-hinge_height+hinge_inner_diameter)])
+        top_left_hinge();
+   
+    translate([gap_x*2-5,gap_y*4+5,0])
+        rotate([0,180,0]) 
+            translate([-enclosure_depth,0,-hinge_height+hinge_inner_diameter])
+                bottom_right_hinge();
+
+    translate([-enclosure_width+frame_corner_width+20,gap_y,0])        
+        front_right_bottom_corner();
+
+    translate([-enclosure_width+frame_corner_width+60,gap_y*2,-frame_corner_height])
+        front_right_vertical_a();
+    
+    translate([35,gap_y*3-10,0])
+    rotate([0,0,180])
+    translate([-enclosure_width+frame_corner_width,0,-(frame_corner_height+frame_vertical_height)])
+        front_right_vertical_b();
+ 
+ translate([gap_x*2-frame_corner_width-10,gap_y,frame_corner_height])
+        rotate([0,180,0])
+    translate([-enclosure_width,0,-(frame_corner_height+frame_vertical_height*2)])
+        front_right_top_corner();
+    
+    translate([-enclosure_width+gap_x*5-20,gap_y*5-30,-(frame_corner_height*2+frame_vertical_height*2-hinge_height+hinge_inner_diameter)])
+        top_right_hinge();
+    
+    translate([gap_x,gap_y*4-10,snaplock_thickness*3])
+        rotate([90,0,90])
+            translate([-enclosure_width,0,0])
+                front_right_bottom_snaplock();
+
+    translate([gap_x*2,gap_y*4-10,snaplock_thickness*3])
+        rotate([90,0,90])
+            translate([-enclosure_width,0,-enclosure_height])            
+                front_right_top_snaplock();
+
+    translate([-enclosure_width+gap_x*3-5,gap_y + frame_corner_width -enclosure_depth,0])  
+        back_right_bottom_corner();
+
+    translate([gap_x*2,gap_y*3-4,0])
+    rotate([0,0,180])
+    translate([-enclosure_width,frame_corner_width -enclosure_depth,-frame_corner_height])
+        back_right_vertical_a();
+    
+    translate([-enclosure_width+gap_x*4-15,gap_y*2+frame_corner_width-enclosure_depth,-(frame_corner_height+frame_vertical_height)])
+        back_right_vertical_b();
+translate([gap_x*4-frame_corner_width-20,gap_y,frame_corner_height])
+        rotate([0,180,0])
+    translate([-enclosure_width,frame_corner_width-enclosure_depth,-(frame_corner_height+frame_vertical_height*2)])
+        back_right_top_corner();
+
+    translate([gap_x*5-25,20,snaplock_thickness*3])
+        rotate([-90,0,0])
+            translate([-enclosure_width,-enclosure_depth,0])
+                back_right_bottom_snaplock();
+
+    translate([gap_x*5-25,60,snaplock_thickness*3])
+        rotate([-90,0,0])
+            translate([-enclosure_width,-enclosure_depth,-enclosure_height])
+                back_right_top_snaplock();
 }
 
 module exploded_view() {
