@@ -1,0 +1,10 @@
+
+Molex connectors
+
+Female pins 5556T 
+https://www.molex.com/en-us/products/part-detail/39000038
+https://www.digikey.com.au/en/products/detail/molex/0039000038/413211
+
+Male pins M5558T
+https://www.molex.com/en-us/products/part-detail/39000040
+https://www.digikey.com.au/en/products/detail/molex/0039000040/413210
