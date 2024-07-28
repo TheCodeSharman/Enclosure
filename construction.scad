@@ -113,6 +113,25 @@ module add_outside_frame( height ) {
     }
 }
 
+module door_frame_arm() {
+    door_arm_width = door_panel_width - tolerance_tight;
+    difference() {
+        // frame arm
+        translate([hinge_inner_diameter/2+hinge_clearance+door_arm_width/2,
+                    -hinge_offset ,-door_frame_arm_height/2 + (hinge_height-hinge_inner_diameter)]) 
+            rotate([90,0,0])
+            union() {
+                fillet_cube([door_arm_width, door_frame_arm_height, hinge_thickness],true, 5);
+                // door handle
+                translate([door_arm_width/2-25,-10.5,5]) rotate([-45,0,])
+                fillet_cube([20,15,5],true,2);
+            
+            }
+        // cut out magnet
+        translate([door_arm_width - door_frame_magnet_diameter,-hinge_offset + plastic_thickness - 1+ door_panel_thickness,+plastic_thickness]) rotate([90,0,0])
+            cylinder(door_frame_magnet_thickness, d=door_frame_magnet_diameter);
+    }
+}
 module hinge() {
     height = hinge_height-hinge_inner_diameter;
     width = hinge_inner_diameter+hinge_ring_thickness;

@@ -23,6 +23,13 @@ module explode(vector) {
 
 }
 
+module fillet_cube(size,center,fillet_radius) {
+    translate([(center?0:fillet_radius),(center?0:fillet_radius),(center?-size[2]/2:0)])
+    linear_extrude(size[2])
+        offset(fillet_radius) 
+            square(size=[size[0]-fillet_radius*2,size[1]-fillet_radius*2],center=center);
+}
+
 /*
  The fix_preview series of functions are used to make small
  translations in order to reduce conincident plane artifacts

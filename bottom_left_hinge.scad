@@ -9,7 +9,10 @@ module bottom_left_hinge(open=false) {
                 (hinge_inner_diameter)/2,0]) 
             rotate([0,0,open?-90:0]) 
                 color("Salmon")
-                hinge();
+                union() {
+                    hinge();
+                    door_frame_arm();
+                }
         fix_preview() left_door(open);
     }
 }

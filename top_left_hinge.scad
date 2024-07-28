@@ -11,7 +11,10 @@ module top_left_hinge(open=false) {
                 mirror([0,0,1]) 
                     rotate([0,0,open?-90:0]) 
                     color("Salmon")
+                    union() {
                         hinge();
+                        door_frame_arm();
+                    }
         fix_preview() left_door(open);
     }
 }

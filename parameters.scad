@@ -17,7 +17,7 @@ panel_width=535.0;
 panel_offset_z = enclosure_height - panel_height;
 
 // Door panel dimensions
-door_panel_thickness=3.0;
+door_panel_thickness=2.75;
 door_panel_width=250.0;
 door_panel_height=475.0;
 door_hinge_offset=6.5;
@@ -57,6 +57,10 @@ hinge_clearance = 1.5;
 hinge_ring_thickness=3.0;
 hinge_thickness=plastic_thickness*2 + door_panel_thickness;
 hinge_offset=6.5+plastic_thickness;
+
+door_frame_arm_height=hinge_height;
+door_frame_magnet_diameter=19.50;
+door_frame_magnet_thickness=2.8;
 
 enclosure_width=2*(frame_corner_width+plastic_thickness+hinge_gap
     +door_hinge_offset) + door_panel_width*2 +tolerance_smooth;
