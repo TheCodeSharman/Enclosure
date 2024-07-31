@@ -56,6 +56,7 @@ RevoluteJoint(
 # Wall panels
 panel = Box(535.0, 450.0, 6.0)
 panel.label = "panel"
+panel.color = Color("wheat")
 
 RigidJoint(
     label="top", 
@@ -80,7 +81,7 @@ RigidJoint(
 left_panel, right_panel, back_panel = copy(panel), copy(panel), copy(panel)
 left_door, right_door = copy(door_panel), copy(door_panel)
 
-doors_opened = False
+doors_opened = True
 boundary.joints["right panel"].connect_to(left_panel.joints["top"])
 boundary.joints["left panel"].connect_to(right_panel.joints["top"])
 boundary.joints["back panel"].connect_to(back_panel.joints["top"])
