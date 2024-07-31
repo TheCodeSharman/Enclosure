@@ -6,7 +6,7 @@ from copy import *
 # %% 
 
 # Enclosures internal boundary
-boundary=Box(603.0,535.0,475.0)
+boundary=Box(600.0,535.0,475.0)
 boundary.label="boundary"
 boundary.color=Color("tomato", 0.1)
 
@@ -36,19 +36,20 @@ RigidJoint(
 )
 
 # Door hinge joints
-hinge_offset=25
+hinge_offset_h=22
+hinge_offset_v=12
 
 RevoluteJoint(
     label="left door hinge", 
     to_part=boundary, 
-    axis=Axis(front_left_edge).located(Pos(hinge_offset,0,0)),
+    axis=Axis(front_left_edge).located(Pos(hinge_offset_h,hinge_offset_v,0)),
     angular_range=(270,360)
 )
 
 RevoluteJoint(
     label="right door hinge", 
     to_part=boundary, 
-    axis=Axis(front_right_edge.reversed()).located(Pos(-hinge_offset,0,0)),
+    axis=Axis(front_right_edge.reversed()).located(Pos(-hinge_offset_h,hinge_offset_v,0)),
     angular_range=(270,360)
 )
 
@@ -67,11 +68,12 @@ door_panel = Box(253.0, 2.75, 475.0)
 door_panel.label = "door panel"
 door_panel.color = Color("gray", 0.3)
 door_bottom_face = (door_panel.faces() > Axis.Z)[0]
-
+door_hinge_offset_h=25
+door_hinge_offset_v=12
 RigidJoint(
     label="hinge", 
     to_part=door_panel, 
-    joint_location=(door_bottom_face.edges() > Axis.X)[0].location
+    joint_location=(door_bottom_face.edges() > Axis.X)[0].location*Pos(-door_hinge_offset_h,door_hinge_offset_v,0)
 )
 
 # Assembly
