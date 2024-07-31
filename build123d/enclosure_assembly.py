@@ -50,6 +50,8 @@ right_face = (boundary.faces() < Axis.X)[0]
 front_left_edge = (left_face.edges() > Axis.Y)[0]
 front_right_edge = (right_face.edges() > Axis.Y)[0]
 
+show(boundary, render_joints=True)
+
 # %%
 
 # Model the MDF panels used to build the enclosure walls.
@@ -88,6 +90,8 @@ boundary.joints["right panel"].connect_to(left_panel.joints["top"])
 boundary.joints["left panel"].connect_to(right_panel.joints["top"])
 boundary.joints["back panel"].connect_to(back_panel.joints["top"])
 
+show(boundary, left_panel, right_panel, back_panel, render_joints=True)
+
 # %%
 
 # Model the transparent doors.
@@ -97,6 +101,9 @@ door_panel.color = Color("gray", 0.3)
 door_bottom_face = (door_panel.faces() > Axis.Z)[0]
 door_hinge_offset_h=25
 door_hinge_offset_v=12
+
+doors_opened = False
+
 RigidJoint(
     label="hinge", 
     to_part=door_panel, 
@@ -123,10 +130,13 @@ RevoluteJoint(
 
 left_door, right_door = copy(door_panel), copy(door_panel)
 
-doors_opened = False
 
 boundary.joints["left door hinge"].connect_to(left_door.joints["hinge"], angle=270 if doors_opened else 360)
 boundary.joints["right door hinge"].connect_to(right_door.joints["hinge"], angle=270 if doors_opened else 360)
+
+show(boundary, left_door, right_door, render_joints=True)
+
+
 # %%
 
 # Assemble all the component above to use as a guide to build printed parts.
