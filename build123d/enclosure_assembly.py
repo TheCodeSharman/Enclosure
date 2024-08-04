@@ -102,7 +102,7 @@ door_bottom_face = (door_panel.faces() > Axis.Z)[0]
 door_hinge_offset_h=25
 door_hinge_offset_v=12
 
-doors_opened = False
+doors_opened = True
 
 RigidJoint(
     label="hinge", 
