@@ -1,3 +1,5 @@
 **/*.stl
 **/__pycache__
 **/*.FCBak
+**/fp-info-cache
+**/*-backups
