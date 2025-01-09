@@ -134,7 +134,7 @@ left_door, right_door = copy(door_panel), copy(door_panel)
 boundary.joints["left door hinge"].connect_to(left_door.joints["hinge"], angle=270 if doors_opened else 360)
 boundary.joints["right door hinge"].connect_to(right_door.joints["hinge"], angle=270 if doors_opened else 360)
 
-show(boundary, left_door, right_door, render_joints=True)
+#show(boundary, left_door, right_door, render_joints=True)
 
 
 # %%
@@ -145,5 +145,37 @@ assembly = Compound(
     children=[boundary, left_panel, right_panel, back_panel, left_door, right_door]
 )
 
-show(assembly, render_joints=True)
+show(assembly, render_joints=False)
+# %%
+clearance=0.3
+diameter=6.0
+hinge_length=100.0
+hinge_section_length=(hinge_length - clearance*2)/3
+height=diameter/2-clearance*2
+
+with BuildLine() as edge:
+        l2 = PolarLine(start=(0,0), angle=-90, length=clearance)
+        l3 = PolarLine(start=l2@1,angle=-45,length=-height,length_mode=LengthMode.VERTICAL)
+        PolarLine(start=l3@1, angle=-90, length=clearance)
+
+with BuildLine() as hinge_base:
+    # build the middle part of the hinge
+    l1 = Line([(-hinge_section_length/2,diameter/2),(0,diameter/2)])
+    edge_inner = edge.line.moved(Pos(l1@0))
+    add(edge_inner)
+    Line([edge_inner@1,(0,0)])
+
+    # add the outer part of the hinge
+    edge_outer = edge.line.moved(Pos(l1@0 - (clearance,0)))
+    add(edge_outer)
+    l2 = Line(edge_outer@1,edge_outer@1 + (-hinge_section_length,0))
+    l3 = Line(l2@1,l2@1 + (0,diameter/2))
+    Line(l3@1,edge_outer@0)
+
+    # create the rest of the hinge by symmetry
+    mirror(about=Plane.YZ)
+
+
+show(hinge_base,reset_camera=Camera.KEEP)
+
 # %%
