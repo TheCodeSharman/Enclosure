@@ -147,30 +147,36 @@ assembly = Compound(
 
 show(assembly, render_joints=False)
 # %%
-clearance=0.3
+clearance=0.2
 diameter=6.0
-hinge_length=100.0
-hinge_section_length=(hinge_length - clearance*2)/3
+hinge_section_length=30.0
 height=diameter/2-clearance*2
 
-with BuildLine() as edge:
-        l2 = PolarLine(start=(0,0), angle=-90, length=clearance)
-        l3 = PolarLine(start=l2@1,angle=-45,length=-height,length_mode=LengthMode.VERTICAL)
-        PolarLine(start=l3@1, angle=-90, length=clearance)
-
 with BuildLine() as hinge_base:
-    # build the middle part of the hinge
-    l1 = Line([(-hinge_section_length/2,diameter/2),(0,diameter/2)])
-    edge_inner = edge.line.moved(Pos(l1@0))
-    add(edge_inner)
-    Line([edge_inner@1,(0,0)])
+    top = Line([(0,diameter/2),(hinge_section_length/2,diameter/2)])
+    bottom = Line([(0,0),(hinge_section_length/2,0)], mode=Mode.PRIVATE)
+    right = PolarLine(start=top@1, angle=-90, length=height,mode=Mode.PRIVATE)
 
-    # add the outer part of the hinge
-    edge_outer = edge.line.moved(Pos(l1@0 - (clearance,0)))
-    add(edge_outer)
-    l2 = Line(edge_outer@1,edge_outer@1 + (-hinge_section_length,0))
-    l3 = Line(l2@1,l2@1 + (0,diameter/2))
-    Line(l3@1,edge_outer@0)
+    l2 = PolarLine(start=top@1+(clearance,0), angle=-90, length=clearance)
+    l3 = PolarLine(start=l2@1, angle=45,length=-height,length_mode=LengthMode.VERTICAL)
+    l4 = IntersectingLine(start=l3@1,direction=(0,-1), other=bottom)
+    
+    left = PolarLine(start=l4@1+(-clearance,0),angle=90,length=height,mode=Mode.PRIVATE)
+
+    # the perpendicular is centered on the line so we need to multiple clearance by 2
+    offset_by_clearance = l3.perpendicular_line(length=clearance*2,u_value=0.5) 
+
+    l5 = IntersectingLine(start=offset_by_clearance@1, direction=(1,1), other=right)
+    l9 = Line([l5@1,top@1])
+
+    l7 = IntersectingLine(start=offset_by_clearance@1, direction=(-1,-1), other=left)
+    l8 = IntersectingLine(start=l7@1, direction=(0,-1), other=bottom)
+
+    l6 = Line([l8@1,(0,0)])
+
+    l10 = PolarLine(start=l2@0,angle=0,length=hinge_section_length)
+    l11 = PolarLine(start=l10@1,angle=-90,length=diameter/2)
+    l12 = Line([l11@1,l4@1])
 
     # create the rest of the hinge by symmetry
     mirror(about=Plane.YZ)
