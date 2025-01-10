@@ -185,8 +185,8 @@ class InPlaceHinge(BasePartObject):
 
         with BuildPart() as hinge_sides:
             with BuildSketch():
-                Rectangle(width=length/2+3*MM,height=diameter/2,align=Align.MIN)
-                Rectangle(width=length/2+3*MM,height=clearance/2,align=Align.MIN,mode=Mode.SUBTRACT)
+                with Locations((0,clearance/2)):
+                    Rectangle(width=length/2+3*MM,height=diameter/2-clearance/2,align=Align.MIN)
             extrude(amount=-diameter*2)
             mirror(about=Plane.YZ)
             mirror(about=Plane.XZ)
