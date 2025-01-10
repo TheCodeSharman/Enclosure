@@ -149,39 +149,23 @@ show(assembly, render_joints=False)
 # %%
 clearance=0.2
 diameter=6.0
-hinge_section_length=30.0
-height=diameter/2-clearance*2
+hinge_length=100.0
 
-with BuildLine() as hinge_base:
-    top = Line([(0,diameter/2),(hinge_section_length/2,diameter/2)])
-    bottom = Line([(0,0),(hinge_section_length/2,0)], mode=Mode.PRIVATE)
-    right = PolarLine(start=top@1, angle=-90, length=height,mode=Mode.PRIVATE)
-
-    l2 = PolarLine(start=top@1+(clearance,0), angle=-90, length=clearance)
-    l3 = PolarLine(start=l2@1, angle=45,length=-height,length_mode=LengthMode.VERTICAL)
-    l4 = IntersectingLine(start=l3@1,direction=(0,-1), other=bottom)
-    
-    left = PolarLine(start=l4@1+(-clearance,0),angle=90,length=height,mode=Mode.PRIVATE)
-
-    # the perpendicular is centered on the line so we need to multiple clearance by 2
-    offset_by_clearance = l3.perpendicular_line(length=clearance*2,u_value=0.5) 
-
-    l5 = IntersectingLine(start=offset_by_clearance@1, direction=(1,1), other=right)
-    l9 = Line([l5@1,top@1])
-
-    l7 = IntersectingLine(start=offset_by_clearance@1, direction=(-1,-1), other=left)
-    l8 = IntersectingLine(start=l7@1, direction=(0,-1), other=bottom)
-
-    l6 = Line([l8@1,(0,0)])
-
-    l10 = PolarLine(start=l2@0,angle=0,length=hinge_section_length)
-    l11 = PolarLine(start=l10@1,angle=-90,length=diameter/2)
-    l12 = Line([l11@1,l4@1])
-
+# %% Sweep 1D line over path to achieve the same
+with BuildSketch() as hinge_profile:
+    # Create one half of the hinge joint profile
+    hinge_section_length=hinge_length/3
+    height=diameter/2-clearance*2
+    Rectangle(width=hinge_length/2,height=diameter/2,align=Align.MIN)
+    # Construct an edge to cut out the clearance to make the hinge joint mechanism
+    with BuildLine() as hinge_joint:
+        l1 = PolarLine(start=(hinge_section_length/2,0), angle=90, length=clearance)
+        l2 = PolarLine(start=l1@1, angle=45, length=height, length_mode=LengthMode.VERTICAL)
+        l3 = PolarLine(start=l2@1, angle=90, length=clearance)
+    # sweep the perpendicular line to ensure that the clearance is respected
+    sweep(sections=l2.perpendicular_line(length=clearance,u_value=0.5),transition=Transition.RIGHT,mode=Mode.SUBTRACT)
     # create the rest of the hinge by symmetry
     mirror(about=Plane.YZ)
 
-
-show(hinge_base,reset_camera=Camera.KEEP)
-
+show(hinge_profile,reset_camera=Camera.KEEP)
 # %%
