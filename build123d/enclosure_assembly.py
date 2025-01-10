@@ -147,9 +147,9 @@ assembly = Compound(
 
 show(assembly, render_joints=False)
 # %%
-clearance=0.2
-diameter=6.0
-hinge_length=100.0
+clearance=0.2 * MM
+diameter=6.0 * MM
+hinge_length=100.0 * MM
 
 # %% Sweep 1D line over path to achieve the same
 with BuildSketch() as hinge_profile:
@@ -158,13 +158,13 @@ with BuildSketch() as hinge_profile:
     height=diameter/2-clearance*2
     Rectangle(width=hinge_length/2,height=diameter/2,align=Align.MIN)
     # Construct an edge to cut out the clearance to make the hinge joint mechanism
-    with BuildLine() as hinge_joint:
+    with BuildLine():
         l1 = PolarLine(start=(hinge_section_length/2,0), angle=90, length=clearance)
         l2 = PolarLine(start=l1@1, angle=45, length=height, length_mode=LengthMode.VERTICAL)
         l3 = PolarLine(start=l2@1, angle=90, length=clearance)
     # sweep the perpendicular line to ensure that the clearance is respected
     sweep(sections=l2.perpendicular_line(length=clearance,u_value=0.5),transition=Transition.RIGHT,mode=Mode.SUBTRACT)
-    # create the rest of the hinge by symmetry
+    # create the rest of the hinge profile by symmetry
     mirror(about=Plane.YZ)
 
 show(hinge_profile,reset_camera=Camera.KEEP)
