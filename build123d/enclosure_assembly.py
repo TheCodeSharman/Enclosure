@@ -163,6 +163,20 @@ class InPlaceHinge(BasePartObject):
         ),
         mode: Mode = Mode.ADD,
     ):
+        with BuildPart() as hinge_sides:
+                with BuildSketch():
+                    with Locations((0,clearance/2)):
+                        Rectangle(width=length/2+3*MM,height=diameter/2-clearance/2,align=Align.MIN)
+                extrude(amount=-diameter*2)
+                mirror(about=Plane.YZ)
+                mirror(about=Plane.XZ)
+            
+        hinge_left, hinge_right=hinge_sides.part.solids()
+        hinge_left.label="hinge_left"
+        hinge_left.color=Color("red")
+        hinge_right.label="hinge_right"
+        hinge_right.color=Color("red")
+
         with BuildPart() as hinge_joint:
             with BuildSketch() as hinge_joint_profile:
                 # Create one half of the hinge joint profile
@@ -186,19 +200,7 @@ class InPlaceHinge(BasePartObject):
         hinge_back.label="hinge_back"
         hinge_back.color=Color("orange")
 
-        with BuildPart() as hinge_sides:
-            with BuildSketch():
-                with Locations((0,clearance/2)):
-                    Rectangle(width=length/2+3*MM,height=diameter/2-clearance/2,align=Align.MIN)
-            extrude(amount=-diameter*2)
-            mirror(about=Plane.YZ)
-            mirror(about=Plane.XZ)
         
-        hinge_left, hinge_right=hinge_sides.part.solids()
-        hinge_left.label="hinge_left"
-        hinge_left.color=Color("red")
-        hinge_right.label="hinge_right"
-        hinge_right.color=Color("red")
         super().__init__(part=Compound(children=[hinge_front, hinge_centre, hinge_back, hinge_left, hinge_right]), rotation=rotation, align=align, mode=mode)
 
 hinge = InPlaceHinge(clearance=0.2*MM, diameter=6.0*MM, length=60*MM)
