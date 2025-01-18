@@ -163,6 +163,7 @@ class InPlaceHinge(BasePartObject):
         ),
         mode: Mode = Mode.ADD,
     ):
+        # Construct hinge sides
         with BuildPart() as hinge_sides:
                 with BuildSketch():
                     with Locations((0,clearance/2)):
@@ -177,10 +178,11 @@ class InPlaceHinge(BasePartObject):
         hinge_right.label="hinge_right"
         hinge_right.color=Color("red")
 
+        # Construct hinge joint
         with BuildPart() as hinge_joint:
             with BuildSketch() as hinge_joint_profile:
                 # Create one half of the hinge joint profile
-                hinge_section_length=length/3
+                hinge_section_length=length/3 - diameter/2
                 Rectangle(width=length/2,height=diameter/2,align=Align.MIN)
                 # Construct an edge to cut out the clearance to make the hinge joint mechanism
                 with BuildLine():
@@ -200,9 +202,40 @@ class InPlaceHinge(BasePartObject):
         hinge_back.label="hinge_back"
         hinge_back.color=Color("orange")
 
+        # Glue joint segments to sides
+        hinge_cross_section = section(obj=hinge_centre, section_by=Plane.YZ)
+        with BuildPart() as hinge_joined:
+            add(hinge_left)
+            with BuildSketch(hinge_front.faces().sort_by(Axis.X)[0]) as hinge_wedge:
+                tagent_point=0.875 # choosen manually to make a 90 degree wedge
+                add(hinge_cross_section)
+                with BuildLine():
+                    add(hinge_cross_section.edge())
+                    l4 = PolarLine(start=hinge_cross_section.edge()@tagent_point,direction=hinge_cross_section.edge()%tagent_point,length=5)
+                    l5 = PolarLine(start=hinge_cross_section.edge()@-tagent_point,direction=hinge_cross_section.edge()%-tagent_point,length=-5)
+                make_face()
+            extrude(amount=-length,mode=Mode.SUBTRACT)
+           
+            add(hinge_centre)
+            with BuildSketch(hinge_centre.faces().sort_by(Axis.X)[0]) as hinge_wedge2:
+                tagent_point=0.875 # choosen manually to make a 90 degree wedge
+                with BuildLine():
+                    add(hinge_cross_section.edge())
+                    l4 = PolarLine(start=hinge_cross_section.edge()@tagent_point,direction=hinge_cross_section.edge()%tagent_point,length=5)
+                    l5 = PolarLine(start=hinge_cross_section.edge()@-tagent_point,direction=hinge_cross_section.edge()%-tagent_point,length=-5)
+                make_face()
+            #show(hinge_wedge,hinge_centre,reset_camera=Camera.KEEP)
+           
+            extrude(to_extrude=hinge_wedge2.sketch,mode=Mode.ADD, amount=-hinge_centre.bounding_box().size.X)
+            #add(hinge_back)
+            #add(hinge_front)
+             
+        show(hinge_joined.part.solids()[0],reset_camera=Camera.KEEP)
+
+
         
         super().__init__(part=Compound(children=[hinge_front, hinge_centre, hinge_back, hinge_left, hinge_right]), rotation=rotation, align=align, mode=mode)
 
 hinge = InPlaceHinge(clearance=0.2*MM, diameter=6.0*MM, length=60*MM)
-show(hinge,reset_camera=Camera.KEEP)
+#show(hinge,reset_camera=Camera.KEEP)
 # %%
