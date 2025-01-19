@@ -149,18 +149,36 @@ show(assembly, render_joints=False)
 # %%
 
 # %% Custom object for in place hinge
+class HingeWedge(BaseSketchObject):
+    def __init__(
+        self,
+        diameter: float,
+        clearance: float,
+        mode: Mode=Mode.ADD):
+            with BuildSketch() as wedge:
+                base_circle=Circle(radius=diameter/2,mode=Mode.PRIVATE).edge()
+                stem=Rectangle(height=diameter*2,width=clearance,align=[Align.CENTER, Align.MAX],mode=Mode.PRIVATE)
+                stem_edge=stem.edges().sort_by(Axis.X)[0]
+                start=base_circle.find_tangent(-45)[0]
+                end=base_circle.find_tangent(45)[0]
+                start_point=base_circle@start
+                start_tangent=base_circle%start
+                end_point=base_circle@end
+                end_tangent=base_circle%end
+                with BuildLine() as lines:
+                    TangentArc(start_point,end_point,tangent=start_tangent)
+                    l1=IntersectingLine(start=start_point,direction=start_tangent,other=stem_edge)
+                    l2=IntersectingLine(start=end_point,direction=-end_tangent,other=stem_edge)
+                    Line(l1@1,l2@1)
+                make_face()
+            super().__init__(obj=wedge.sketch,mode=mode)
+
 class InPlaceHinge(BasePartObject):
     def __init__(
         self,
         clearance: float,
         diameter: float,
         length: float,
-        rotation: RotationLike = (0, 0, 0),
-        align: Align | tuple[Align, Align, Align] = (
-            Align.CENTER,
-            Align.CENTER,
-            Align.CENTER,
-        ),
         mode: Mode = Mode.ADD,
     ):
         # Construct hinge sides
@@ -173,10 +191,6 @@ class InPlaceHinge(BasePartObject):
                 mirror(about=Plane.XZ)
             
         hinge_left, hinge_right=hinge_sides.part.solids()
-        hinge_left.label="hinge_left"
-        hinge_left.color=Color("red")
-        hinge_right.label="hinge_right"
-        hinge_right.color=Color("red")
 
         # Construct hinge joint
         with BuildPart() as hinge_joint:
@@ -195,47 +209,53 @@ class InPlaceHinge(BasePartObject):
                 mirror(about=Plane.YZ)
             revolve(axis=Axis.X)
         hinge_front, hinge_centre, hinge_back=hinge_joint.part.solids()
-        hinge_front.label="hinge_front"
-        hinge_front.color=Color("orange")
-        hinge_centre.label="hinge_centre"
-        hinge_centre.color=Color("green")
-        hinge_back.label="hinge_back"
-        hinge_back.color=Color("orange")
 
         # Glue joint segments to sides
         hinge_cross_section = section(obj=hinge_centre, section_by=Plane.YZ)
-        with BuildPart() as hinge_joined:
-            add(hinge_left)
-            with BuildSketch(hinge_front.faces().sort_by(Axis.X)[0]) as hinge_wedge:
-                tagent_point=0.875 # choosen manually to make a 90 degree wedge
+        with BuildPart() as hinge_joined_right:
+
+            # Cut out space for hinge
+            add(hinge_right)
+            with BuildSketch(hinge_front.faces().sort_by(Axis.X)[0]):
                 add(hinge_cross_section)
-                with BuildLine():
-                    add(hinge_cross_section.edge())
-                    l4 = PolarLine(start=hinge_cross_section.edge()@tagent_point,direction=hinge_cross_section.edge()%tagent_point,length=5)
-                    l5 = PolarLine(start=hinge_cross_section.edge()@-tagent_point,direction=hinge_cross_section.edge()%-tagent_point,length=-5)
-                make_face()
+                HingeWedge(diameter=diameter,clearance=clearance)
             extrude(amount=-length,mode=Mode.SUBTRACT)
-           
+       
+            # Add the centre of the hinge  and join to hinge right side
             add(hinge_centre)
-            with BuildSketch(hinge_centre.faces().sort_by(Axis.X)[0]) as hinge_wedge2:
-                tagent_point=0.875 # choosen manually to make a 90 degree wedge
-                with BuildLine():
-                    add(hinge_cross_section.edge())
-                    l4 = PolarLine(start=hinge_cross_section.edge()@tagent_point,direction=hinge_cross_section.edge()%tagent_point,length=5)
-                    l5 = PolarLine(start=hinge_cross_section.edge()@-tagent_point,direction=hinge_cross_section.edge()%-tagent_point,length=-5)
-                make_face()
-            #show(hinge_wedge,hinge_centre,reset_camera=Camera.KEEP)
-           
-            extrude(to_extrude=hinge_wedge2.sketch,mode=Mode.ADD, amount=-hinge_centre.bounding_box().size.X)
-            #add(hinge_back)
-            #add(hinge_front)
-             
-        show(hinge_joined.part.solids()[0],reset_camera=Camera.KEEP)
+            with BuildSketch(hinge_centre.faces().sort_by(Axis.X)[0]):
+                HingeWedge(diameter=diameter,clearance=clearance)
+            extrude(mode=Mode.ADD, amount=-hinge_centre.bounding_box().size.X)
+        hinge_joined_right.part.label="hinge_right"
+        hinge_joined_right.part.color=Color("green")
 
+        with BuildPart() as hinge_joined_left:
 
-        
-        super().__init__(part=Compound(children=[hinge_front, hinge_centre, hinge_back, hinge_left, hinge_right]), rotation=rotation, align=align, mode=mode)
+            # Cut out space for hinge
+            add(hinge_left)
+            with BuildSketch(hinge_front.faces().sort_by(Axis.X)[0]):
+                add(hinge_cross_section)
+                HingeWedge(diameter=diameter,clearance=clearance)
+            extrude(amount=-length,mode=Mode.SUBTRACT)
+       
+            # Add hinge back and join to hinge left side
+            hinge_length=(length-hinge_centre.bounding_box().size.X-clearance*2)/2
+            add(hinge_back)
+            back_face=hinge_back.faces().sort_by(Axis.X,reverse=True)[0]
+            with BuildSketch(Plane(origin=back_face.center(),x_dir=(0,1,0),z_dir=back_face.normal_at())):
+                HingeWedge(diameter=diameter,clearance=clearance)
+            extrude(mode=Mode.ADD, amount=-hinge_length)
+
+            # Add hinge front and join to hinge left side
+            add(hinge_front)
+            front_face=hinge_front.faces().sort_by(Axis.X)[0]
+            with BuildSketch(Plane(origin=front_face.center(),x_dir=(0,1,0),z_dir=-front_face.normal_at())):
+                HingeWedge(diameter=diameter,clearance=clearance)
+            extrude(mode=Mode.ADD, amount=hinge_length)
+        hinge_joined_left.part.label="hinge_left"
+        hinge_joined_left.part.color=Color("orange")
+        super().__init__(part=Compound(children=[hinge_joined_right.part, hinge_joined_left.part]), mode=mode)
 
 hinge = InPlaceHinge(clearance=0.2*MM, diameter=6.0*MM, length=60*MM)
-#show(hinge,reset_camera=Camera.KEEP)
+show(hinge,reset_camera=Camera.KEEP)
 # %%
