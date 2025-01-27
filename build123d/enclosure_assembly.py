@@ -169,6 +169,26 @@ class HingeWedge(BaseSketchObject):
                 make_face()
             super().__init__(obj=wedge.sketch,mode=mode)
 
+# %%
+class HingeJointSketch(BaseSketchObject):
+    def __init__(self, length: float, diameter: float, clearance: float, mode: Mode=Mode.ADD):
+        with BuildSketch() as hinge_joint_profile:
+            # Create one half of the hinge joint profile
+            hinge_section_length=length/3 - diameter/2
+            Rectangle(width=length/2,height=diameter/2,align=Align.MIN)
+            # Construct an edge to cut out the clearance to make the hinge joint mechanism
+            with BuildLine():
+                l1 = PolarLine(start=(hinge_section_length/2,0), angle=90, length=clearance)
+                l2 = PolarLine(start=l1@1, angle=45, length=diameter/2-clearance*2, length_mode=LengthMode.VERTICAL)
+                l3 = PolarLine(start=l2@1, angle=90, length=clearance)
+            # Sweep the perpendicular line to ensure that the clearance is respected
+            sweep(sections=l2.perpendicular_line(length=clearance,u_value=0.5),transition=Transition.RIGHT,mode=Mode.SUBTRACT)
+            # Create the rest of the hinge profile by symmetry
+            mirror(about=Plane.YZ)
+        #show(hinge_joint_profile,reset_camera=Camera.KEEP)
+        super().__init__(obj=hinge_joint_profile.sketch,mode=mode)
+
+# %%
 class InPlaceHinge(BasePartObject):
     def __init__(
         self,
@@ -190,21 +210,11 @@ class InPlaceHinge(BasePartObject):
 
         # Construct hinge joint
         with BuildPart() as hinge_joint:
-            with BuildSketch() as hinge_joint_profile:
-                # Create one half of the hinge joint profile
-                hinge_section_length=length/3 - diameter/2
-                Rectangle(width=length/2,height=diameter/2,align=Align.MIN)
-                # Construct an edge to cut out the clearance to make the hinge joint mechanism
-                with BuildLine():
-                    l1 = PolarLine(start=(hinge_section_length/2,0), angle=90, length=clearance)
-                    l2 = PolarLine(start=l1@1, angle=45, length=diameter/2-clearance*2, length_mode=LengthMode.VERTICAL)
-                    l3 = PolarLine(start=l2@1, angle=90, length=clearance)
-                # Sweep the perpendicular line to ensure that the clearance is respected
-                sweep(sections=l2.perpendicular_line(length=clearance,u_value=0.5),transition=Transition.RIGHT,mode=Mode.SUBTRACT)
-                # Create the rest of the hinge profile by symmetry
-                mirror(about=Plane.YZ)
+            with BuildSketch():
+                HingeJointSketch(length=length,diameter=diameter,clearance=clearance)
             revolve(axis=Axis.X)
-        hinge_front, hinge_centre, hinge_back=hinge_joint.part.solids()
+        
+        hinge_front, hinge_centre, hinge_back=hinge_joint.part.solids().sort_by(Axis.X)
 
         # Glue joint segments to sides
         hinge_cross_section = section(obj=hinge_centre, section_by=Plane.YZ)
