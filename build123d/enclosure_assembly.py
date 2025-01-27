@@ -205,7 +205,6 @@ class InPlaceHinge(BasePartObject):
                 extrude(amount=-diameter*2)
                 mirror(about=Plane.YZ)
                 mirror(about=Plane.XZ)
-            
         hinge_left, hinge_right=hinge_sides.part.solids()
 
         # Construct hinge joint
@@ -227,13 +226,19 @@ class InPlaceHinge(BasePartObject):
                 HingeWedge(diameter=diameter,clearance=clearance)
             extrude(amount=-length,mode=Mode.SUBTRACT)
        
-            # Add the centre of the hinge  and join to hinge right side
+            # Add the centre of the hinge  and join to hnge right side
             add(hinge_centre)
             with BuildSketch(hinge_centre.faces().sort_by(Axis.X)[0]):
                 HingeWedge(diameter=diameter,clearance=clearance)
             extrude(mode=Mode.ADD, amount=-hinge_centre.bounding_box().size.X)
+
+            # Cut away material to ensure there is clearance for the hinge joint to move
+            faces_by_Z=hinge_joined_right.faces().sort_by(Axis.Z)
+            o2=offset(faces_by_Z[9].offset(-clearance),amount=clearance,kind=Kind.INTERSECTION)
+            e1=extrude(o2,amount=o2.distance_to(faces_by_Z[10]),mode=Mode.SUBTRACT)
+            mirror(e1,about=Plane.YZ,mode=Mode.SUBTRACT)
         hinge_joined_right.part.label="hinge_right"
-        hinge_joined_right.part.color=Color("green")
+        hinge_joined_right.part.color=Color("orange")
 
         with BuildPart() as hinge_joined_left:
 
@@ -259,7 +264,7 @@ class InPlaceHinge(BasePartObject):
                 HingeWedge(diameter=diameter,clearance=clearance)
             extrude(mode=Mode.ADD, amount=hinge_length)
         hinge_joined_left.part.label="hinge_left"
-        hinge_joined_left.part.color=Color("orange")
+        hinge_joined_left.part.color=Color("red")
         super().__init__(part=Compound(children=[hinge_joined_right.part, hinge_joined_left.part]), mode=mode)
 
 hinge = InPlaceHinge(clearance=0.2*MM, diameter=6.0*MM, length=60*MM)
