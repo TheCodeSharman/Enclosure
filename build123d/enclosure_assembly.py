@@ -150,11 +150,7 @@ show(assembly, render_joints=False)
 
 # %% Custom object for in place hinge
 class HingeWedge(BaseSketchObject):
-    def __init__(
-        self,
-        diameter: float,
-        clearance: float,
-        mode: Mode=Mode.ADD):
+    def __init__(self, diameter: float, clearance: float, mode: Mode=Mode.ADD):
             with BuildSketch() as wedge:
                 base_circle=Circle(radius=diameter/2,mode=Mode.PRIVATE).edge()
                 stem=Rectangle(height=diameter*2,width=clearance,align=[Align.CENTER, Align.MAX],mode=Mode.PRIVATE)
