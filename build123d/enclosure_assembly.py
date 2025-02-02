@@ -149,7 +149,7 @@ show(assembly, render_joints=False)
 # %%
 
 # %% Custom object for in place hinge
-class HingeWedge(BaseSketchObject):
+class HingeWedgeSketch(BaseSketchObject):
     def __init__(self, diameter: float, clearance: float, mode: Mode=Mode.ADD):
             with BuildSketch() as wedge:
                 base_circle=Circle(radius=diameter/2,mode=Mode.PRIVATE).edge()
@@ -224,13 +224,13 @@ class InPlaceHinge(BasePartObject):
             add(hinge_right)
             with BuildSketch(hinge_front.faces().sort_by(Axis.X)[0]):
                 add(hinge_cross_section)
-                HingeWedge(diameter=diameter,clearance=clearance)
+                HingeWedgeSketch(diameter=diameter,clearance=clearance)
             extrude(amount=-length,mode=Mode.SUBTRACT)
        
             # Add the centre of the hinge  and join to hnge right side
             add(hinge_centre)
             with BuildSketch(hinge_centre.faces().sort_by(Axis.X)[0]):
-                HingeWedge(diameter=diameter,clearance=clearance)
+                HingeWedgeSketch(diameter=diameter,clearance=clearance)
             extrude(mode=Mode.ADD, amount=-hinge_centre.bounding_box().size.X)
 
             # Cut away material to ensure there is clearance for the hinge joint to move
@@ -258,7 +258,7 @@ class InPlaceHinge(BasePartObject):
             add(hinge_left)
             with BuildSketch(hinge_front.faces().sort_by(Axis.X)[0]):
                 add(hinge_cross_section)
-                HingeWedge(diameter=diameter,clearance=clearance)
+                HingeWedgeSketch(diameter=diameter,clearance=clearance)
             extrude(amount=-length,mode=Mode.SUBTRACT)
        
             # Add hinge back and join to hinge left side
@@ -266,14 +266,14 @@ class InPlaceHinge(BasePartObject):
             add(hinge_back)
             back_face=hinge_back.faces().sort_by(Axis.X,reverse=True)[0]
             with BuildSketch(Plane(origin=back_face.center(),x_dir=(0,1,0),z_dir=back_face.normal_at())):
-                HingeWedge(diameter=diameter,clearance=clearance)
+                HingeWedgeSketch(diameter=diameter,clearance=clearance)
             extrude(mode=Mode.ADD, amount=-hinge_length)
 
             # Add hinge front and join to hinge left side
             add(hinge_front)
             front_face=hinge_front.faces().sort_by(Axis.X)[0]
             with BuildSketch(Plane(origin=front_face.center(),x_dir=(0,1,0),z_dir=-front_face.normal_at())):
-                HingeWedge(diameter=diameter,clearance=clearance)
+                HingeWedgeSketch(diameter=diameter,clearance=clearance)
             extrude(mode=Mode.ADD, amount=hinge_length)
 
             # Cut away material to ensure there is clearance for the hinge joint to move
