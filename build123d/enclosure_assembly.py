@@ -234,10 +234,12 @@ class InPlaceHinge(BasePartObject):
             extrude(mode=Mode.ADD, amount=-hinge_centre.bounding_box().size.X)
 
             # Cut away material to ensure there is clearance for the hinge joint to move
-            left_face, centre_left_face = (hinge_joined_right.faces()
-                                       .filter_by(Axis.X)
-                                       .filter_by_position(Axis.X, minimum=-length/2, 
-                                            maximum=length/2)[0:2])
+            left_face, centre_left_face, centre_right_face = (hinge_joined_right.faces()
+                    .filter_by(Axis.X)
+                    .filter_by_position(Axis.X, minimum=-length/2,maximum=length/2-2)
+                    .sort_by(SortBy.AREA)[-3:]
+                    .sort_by(Axis.X))
+            
             o2=offset(left_face.offset(-clearance),amount=clearance,kind=Kind.INTERSECTION)
             e1=extrude(o2,amount=o2.distance_to(centre_left_face),mode=Mode.SUBTRACT)
             mirror(e1,about=Plane.YZ,mode=Mode.SUBTRACT)
@@ -275,10 +277,6 @@ class InPlaceHinge(BasePartObject):
             extrude(mode=Mode.ADD, amount=hinge_length)
 
             # Cut away material to ensure there is clearance for the hinge joint to move
-            centre_left_face, centre_right_face = (hinge_joined_right.faces()
-                .filter_by(Axis.X)
-                .filter_by_position(Axis.X, minimum=-hinge_centre_length/2-10, maximum=hinge_centre_length/2+10)
-                .sort_by(SortBy.AREA)[-2:])
             o2=offset(centre_left_face.offset(clearance),amount=clearance,kind=Kind.INTERSECTION)
             e1=extrude(o2,amount=-o2.distance_to(centre_right_face)-clearance,mode=Mode.SUBTRACT)
            
