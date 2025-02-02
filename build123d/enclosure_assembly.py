@@ -214,6 +214,7 @@ class InPlaceHinge(BasePartObject):
             revolve(axis=Axis.X)
         
         hinge_front, hinge_centre, hinge_back=hinge_joint.part.solids().sort_by(Axis.X)
+        hinge_centre_length=hinge_centre.bounding_box().size.X
 
         # Glue joint segments to sides
         hinge_cross_section = section(obj=hinge_centre, section_by=Plane.YZ)
@@ -237,6 +238,13 @@ class InPlaceHinge(BasePartObject):
             o2=offset(faces_by_Z[9].offset(-clearance),amount=clearance,kind=Kind.INTERSECTION)
             e1=extrude(o2,amount=o2.distance_to(faces_by_Z[10]),mode=Mode.SUBTRACT)
             mirror(e1,about=Plane.YZ,mode=Mode.SUBTRACT)
+
+            fillet(hinge_joined_right.edges()
+                .filter_by(Axis.X)
+                .filter_by_position(Axis.Z,minimum=-diameter,maximum=-1)
+                .sort_by(Axis.Y)[-2:], 
+                radius=clearance)
+
         hinge_joined_right.part.label="hinge_right"
         hinge_joined_right.part.color=Color("orange")
 
@@ -250,7 +258,7 @@ class InPlaceHinge(BasePartObject):
             extrude(amount=-length,mode=Mode.SUBTRACT)
        
             # Add hinge back and join to hinge left side
-            hinge_length=(length-hinge_centre.bounding_box().size.X-clearance*2)/2
+            hinge_length=(length-hinge_centre_length-clearance*2)/2
             add(hinge_back)
             back_face=hinge_back.faces().sort_by(Axis.X,reverse=True)[0]
             with BuildSketch(Plane(origin=back_face.center(),x_dir=(0,1,0),z_dir=back_face.normal_at())):
@@ -268,6 +276,13 @@ class InPlaceHinge(BasePartObject):
             faces_by_Z=hinge_joined_left.faces().sort_by(Axis.Z)
             o2=offset(faces_by_Z[9].offset(-clearance),amount=clearance,kind=Kind.INTERSECTION)
             e1=extrude(o2,amount=o2.distance_to(faces_by_Z[10]),mode=Mode.SUBTRACT)
+
+            fillet(hinge_joined_left.edges()
+                .filter_by(Axis.X)
+                .filter_by_position(Axis.X,minimum=-hinge_centre_length/2, maximum=hinge_centre_length/2)
+                .sort_by(Axis.Z)[-1], 
+                radius=clearance)
+
         hinge_joined_left.part.label="hinge_left"
         hinge_joined_left.part.color=Color("red")
         super().__init__(part=Compound(children=[hinge_joined_right.part, hinge_joined_left.part]), mode=mode)
