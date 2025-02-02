@@ -234,9 +234,12 @@ class InPlaceHinge(BasePartObject):
             extrude(mode=Mode.ADD, amount=-hinge_centre.bounding_box().size.X)
 
             # Cut away material to ensure there is clearance for the hinge joint to move
-            faces_by_Z=hinge_joined_right.faces().sort_by(Axis.Z)
-            o2=offset(faces_by_Z[9].offset(-clearance),amount=clearance,kind=Kind.INTERSECTION)
-            e1=extrude(o2,amount=o2.distance_to(faces_by_Z[10]),mode=Mode.SUBTRACT)
+            left_face, centre_left_face = (hinge_joined_right.faces()
+                                       .filter_by(Axis.X)
+                                       .filter_by_position(Axis.X, minimum=-length/2, 
+                                            maximum=length/2)[0:2])
+            o2=offset(left_face.offset(-clearance),amount=clearance,kind=Kind.INTERSECTION)
+            e1=extrude(o2,amount=o2.distance_to(centre_left_face),mode=Mode.SUBTRACT)
             mirror(e1,about=Plane.YZ,mode=Mode.SUBTRACT)
 
             fillet(hinge_joined_right.edges()
@@ -273,9 +276,13 @@ class InPlaceHinge(BasePartObject):
             extrude(mode=Mode.ADD, amount=hinge_length)
 
             # Cut away material to ensure there is clearance for the hinge joint to move
-            faces_by_Z=hinge_joined_left.faces().sort_by(Axis.Z)
-            o2=offset(faces_by_Z[9].offset(-clearance),amount=clearance,kind=Kind.INTERSECTION)
-            e1=extrude(o2,amount=o2.distance_to(faces_by_Z[10]),mode=Mode.SUBTRACT)
+
+            centre_left_face, centre_right_face = (hinge_joined_left.faces()
+                .filter_by(Axis.X)
+                .filter_by_position(Axis.X, minimum=-hinge_centre_length/2-10, maximum=hinge_centre_length/2+10)
+                .sort_by(SortBy.AREA)[-2:])
+            o2=offset(centre_left_face.offset(-clearance),amount=clearance,kind=Kind.INTERSECTION)
+            e1=extrude(o2,amount=o2.distance_to(centre_right_face),mode=Mode.SUBTRACT)
 
             fillet(hinge_joined_left.edges()
                 .filter_by(Axis.X)
