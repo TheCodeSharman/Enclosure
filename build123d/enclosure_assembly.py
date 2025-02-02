@@ -218,8 +218,8 @@ class InPlaceHinge(BasePartObject):
 
         # Glue joint segments to sides
         hinge_cross_section = section(obj=hinge_centre, section_by=Plane.YZ)
+        
         with BuildPart() as hinge_joined_right:
-
             # Cut out space for hinge
             add(hinge_right)
             with BuildSketch(hinge_front.faces().sort_by(Axis.X)[0]):
@@ -252,7 +252,6 @@ class InPlaceHinge(BasePartObject):
         hinge_joined_right.part.color=Color("orange")
 
         with BuildPart() as hinge_joined_left:
-
             # Cut out space for hinge
             add(hinge_left)
             with BuildSketch(hinge_front.faces().sort_by(Axis.X)[0]):
@@ -276,7 +275,6 @@ class InPlaceHinge(BasePartObject):
             extrude(mode=Mode.ADD, amount=hinge_length)
 
             # Cut away material to ensure there is clearance for the hinge joint to move
-
             centre_left_face, centre_right_face = (hinge_joined_left.faces()
                 .filter_by(Axis.X)
                 .filter_by_position(Axis.X, minimum=-hinge_centre_length/2-10, maximum=hinge_centre_length/2+10)
