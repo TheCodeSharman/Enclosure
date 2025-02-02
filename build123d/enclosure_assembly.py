@@ -263,6 +263,11 @@ class InPlaceHinge(BasePartObject):
             with BuildSketch(Plane(origin=front_face.center(),x_dir=(0,1,0),z_dir=-front_face.normal_at())):
                 HingeWedge(diameter=diameter,clearance=clearance)
             extrude(mode=Mode.ADD, amount=hinge_length)
+
+            # Cut away material to ensure there is clearance for the hinge joint to move
+            faces_by_Z=hinge_joined_left.faces().sort_by(Axis.Z)
+            o2=offset(faces_by_Z[9].offset(-clearance),amount=clearance,kind=Kind.INTERSECTION)
+            e1=extrude(o2,amount=o2.distance_to(faces_by_Z[10]),mode=Mode.SUBTRACT)
         hinge_joined_left.part.label="hinge_left"
         hinge_joined_left.part.color=Color("red")
         super().__init__(part=Compound(children=[hinge_joined_right.part, hinge_joined_left.part]), mode=mode)
