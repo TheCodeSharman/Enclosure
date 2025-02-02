@@ -249,7 +249,7 @@ class InPlaceHinge(BasePartObject):
                 radius=clearance)
 
         hinge_joined_right.part.label="hinge_right"
-        hinge_joined_right.part.color=Color("orange")
+        hinge_joined_right.part.color=Color("red")
 
         with BuildPart() as hinge_joined_left:
             # Cut out space for hinge
@@ -275,13 +275,13 @@ class InPlaceHinge(BasePartObject):
             extrude(mode=Mode.ADD, amount=hinge_length)
 
             # Cut away material to ensure there is clearance for the hinge joint to move
-            centre_left_face, centre_right_face = (hinge_joined_left.faces()
+            centre_left_face, centre_right_face = (hinge_joined_right.faces()
                 .filter_by(Axis.X)
                 .filter_by_position(Axis.X, minimum=-hinge_centre_length/2-10, maximum=hinge_centre_length/2+10)
                 .sort_by(SortBy.AREA)[-2:])
-            o2=offset(centre_left_face.offset(-clearance),amount=clearance,kind=Kind.INTERSECTION)
-            e1=extrude(o2,amount=o2.distance_to(centre_right_face),mode=Mode.SUBTRACT)
-
+            o2=offset(centre_left_face.offset(clearance),amount=clearance,kind=Kind.INTERSECTION)
+            e1=extrude(o2,amount=-o2.distance_to(centre_right_face)-clearance,mode=Mode.SUBTRACT)
+           
             fillet(hinge_joined_left.edges()
                 .filter_by(Axis.X)
                 .filter_by_position(Axis.X,minimum=-hinge_centre_length/2, maximum=hinge_centre_length/2)
@@ -289,7 +289,7 @@ class InPlaceHinge(BasePartObject):
                 radius=clearance)
 
         hinge_joined_left.part.label="hinge_left"
-        hinge_joined_left.part.color=Color("red")
+        hinge_joined_left.part.color=Color("orange")
         super().__init__(part=Compound(children=[hinge_joined_right.part, hinge_joined_left.part]), mode=mode)
 
 hinge = InPlaceHinge(clearance=0.2*MM, diameter=6.0*MM, length=60*MM)
